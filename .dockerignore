@@ -1,0 +1,8 @@
+.venv/
+.git/
+runs/
+__pycache__/
+papers/
+paper/
+swe/
+private/

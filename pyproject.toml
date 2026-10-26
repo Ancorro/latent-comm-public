@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "gradproposal"
+version = "0.1.0"
+description = "LLM architecture experiments; starts with LLM agents on Reasoning Gym tasks."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "boto3[crt]>=1.43.108",
+    "openai>=1.100",
+    "gem-llm>=0.0.3",
+    "reasoning-gym==0.1.25",
+    # Experiment tracking (hosted W&B cloud only); see gradproposal.tracking.
+    "wandb>=0.30.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "ruff>=0.9",
+]
+# LatentMAS reproduction (src/gradproposal/latent): manual forward passes with HF transformers.
+latent = [
+    "torch==2.13.0",
+    "transformers==5.19.0",
+    "datasets>=4.0",
+    "matplotlib>=3.9",
+]
+
+[tool.uv]
+default-groups = ["dev", "latent"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/gradproposal"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["B", "E", "F", "I", "UP"]

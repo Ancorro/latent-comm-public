@@ -1,0 +1,1124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reinforcement Learning Lesson</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '\\(', right: '\\)', display: false}]})"></script>
+<style>
+  :root {
+    --bg: #f6f6f4; --card: #ffffff; --fg: #1d1d1b; --muted: #6b6b66; --line: #e2e1dc;
+    --code: #f1f0ec; --accent: #3b5bdb; --on-accent: #ffffff;
+    --c1: #2f6fdf; --c2: #e0662a; --c3: #0f9d76;
+    --pos: #2f6fdf; --neg: #d64545; --mid: #c9c8c2; --faint: #ecebe6;
+    --good: #2b8a3e; --good-bg: #e6f4ea; --bad: #c92a2a; --bad-bg: #fdecec;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141413; --card: #1e1e1c; --fg: #ecebe6; --muted: #9a9993; --line: #2f2f2c;
+      --code: #262624; --accent: #8ca2ff; --on-accent: #10131f;
+      --c1: #6b9cff; --c2: #ff8f5a; --c3: #3fcf9f;
+      --pos: #6b9cff; --neg: #ff7b7b; --mid: #4a4a46; --faint: #2a2a27;
+      --good: #69db7c; --good-bg: #1d3323; --bad: #ff8787; --bad-bg: #3a1f1f;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141413; --card: #1e1e1c; --fg: #ecebe6; --muted: #9a9993; --line: #2f2f2c;
+    --code: #262624; --accent: #8ca2ff; --on-accent: #10131f;
+    --c1: #6b9cff; --c2: #ff8f5a; --c3: #3fcf9f;
+    --pos: #6b9cff; --neg: #ff7b7b; --mid: #4a4a46; --faint: #2a2a27;
+    --good: #69db7c; --good-bg: #1d3323; --bad: #ff8787; --bad-bg: #3a1f1f;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  nav { position: sticky; top: 0; z-index: 2; background: var(--bg); border-bottom: 1px solid var(--line);
+    display: flex; gap: 16px; padding: 10px 16px; font-size: 14px; }
+  nav a { color: var(--muted); text-decoration: none; }
+  nav a.here { color: var(--fg); font-weight: 600; }
+  main { max-width: 760px; margin: 0 auto; padding: 8px 16px 64px; }
+  h1 { font-size: 26px; line-height: 1.25; margin: 20px 0 8px; }
+  h2 { font-size: 21px; line-height: 1.3; margin: 0 0 8px; }
+  h3 { font-size: 16px; margin: 20px 0 6px; }
+  section { border-top: 1px solid var(--line); padding: 28px 0 8px; scroll-margin-top: 44px; }
+  .num { color: var(--muted); font-weight: 500; margin-right: 6px; }
+  .lede { color: var(--muted); }
+  .takeaway { border-left: 3px solid var(--accent); background: var(--card); padding: 10px 12px;
+    border-radius: 0 8px 8px 0; margin: 12px 0; }
+  .analogy { font-size: 15px; color: var(--muted); }
+  .toc { columns: 2; column-gap: 24px; font-size: 14px; padding-left: 18px; }
+  .toc a { color: var(--accent); text-decoration: none; }
+  .widget { background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 12px; margin: 14px 0; }
+  .widget-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+    color: var(--muted); margin-bottom: 8px; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+  .row label { font-size: 14px; color: var(--muted); }
+  button { font: inherit; font-size: 14px; padding: 6px 12px; border-radius: 8px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--bg); color: var(--fg); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  button:disabled { opacity: .4; cursor: default; }
+  select { font: inherit; font-size: 14px; padding: 5px 6px; border-radius: 8px; max-width: 100%;
+    border: 1px solid var(--line); background: var(--bg); color: var(--fg); }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  .slider { flex: 1 1 200px; }
+  .slider span { font-variant-numeric: tabular-nums; color: var(--fg); font-weight: 600; }
+  pre, code { font: 13px/1.45 ui-monospace, Consolas, monospace; }
+  pre { margin: 0; padding: 8px 10px; background: var(--code); border-radius: 6px;
+    white-space: pre-wrap; word-break: break-word; }
+  code { background: var(--code); padding: 1px 4px; border-radius: 4px; }
+  .stat { font-size: 14px; color: var(--muted); }
+  .stat b { color: var(--fg); font-variant-numeric: tabular-nums; }
+  .pill { font-weight: 600; font-size: 12px; padding: 2px 8px; border-radius: 99px; white-space: nowrap; }
+  .pill.good { color: var(--good); background: var(--good-bg); }
+  .pill.bad { color: var(--bad); background: var(--bad-bg); }
+  .pill.zero { color: var(--muted); background: var(--faint); }
+  .katex-display { overflow-x: auto; overflow-y: hidden; padding: 4px 0; }
+  @media (max-width: 480px) { .katex-display { font-size: 0.86em; } }
+  svg { display: block; width: 100%; height: auto; overflow: visible; }
+  svg text { fill: var(--muted); font: 11px system-ui, sans-serif; }
+  .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; color: var(--muted); margin-top: 6px; }
+  .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+  .boxed { background: var(--good-bg); color: var(--good); font-weight: 700; padding: 0 3px; border-radius: 3px; }
+  .grid20 { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; margin: 8px 0; }
+  .grid20 button { padding: 6px 0; font-variant-numeric: tabular-nums; }
+  .grid20 button.out { opacity: .3; }
+  .grid20 button.hit { background: var(--good-bg); color: var(--good); border-color: var(--good); }
+  details > summary { cursor: pointer; color: var(--accent); font-size: 14px; }
+  .note { font-size: 14px; color: var(--muted); }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<nav><a href="./">Agent I/O</a><a href="lesson" class="here">Lesson</a><a href="visuals">Visuals</a></nav>
+<main>
+
+<h1>Reinforcement learning, through the games our agents played</h1>
+<p class="lede">Reinforcement learning (RL) is learning to act from a score instead of from labeled answers. This lesson builds it up from the loop to the methods used to train language models, using the real episodes Claude Haiku and Qwen played on the Agent I/O page.</p>
+<div class="takeaway">Supervised learning gets the right answer for every example. Reinforcement learning only gets a number after acting, often much later, like a backtest that reports profit and loss but never says which trades were "correct."</div>
+<ol class="toc">
+  <li><a href="#loop">The agent–environment loop</a></li>
+  <li><a href="#state">Hidden state and beliefs</a></li>
+  <li><a href="#return">Rewards, returns and discounting</a></li>
+  <li><a href="#bellman">Values and the Bellman equation</a></li>
+  <li><a href="#explore">Exploration versus exploitation</a></li>
+  <li><a href="#td">Learning from experience</a></li>
+  <li><a href="#pg">Policy gradients</a></li>
+  <li><a href="#ppo">From REINFORCE to PPO</a></li>
+  <li><a href="#llm">Training language models with reinforcement learning</a></li>
+  <li><a href="#transfer">What is the state of a language-model agent?</a></li>
+  <li><a href="#sources">Sources</a></li>
+</ol>
+
+<section id="loop">
+<h2><span class="num">1</span>The agent–environment loop</h2>
+<div class="takeaway">An agent sees an observation, picks an action, and gets back a reward and the next observation. Repeat until the episode ends.</div>
+<svg viewBox="0 0 360 150" role="img" aria-label="Agent and environment loop diagram">
+  <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker></defs>
+  <rect x="10" y="45" width="110" height="60" rx="10" fill="var(--card)" stroke="var(--c1)" stroke-width="2"/>
+  <text x="65" y="80" text-anchor="middle" style="fill:var(--fg);font-size:14px;font-weight:600">Agent</text>
+  <rect x="240" y="45" width="110" height="60" rx="10" fill="var(--card)" stroke="var(--c2)" stroke-width="2"/>
+  <text x="295" y="80" text-anchor="middle" style="fill:var(--fg);font-size:14px;font-weight:600">Environment</text>
+  <path d="M120,60 C170,20 190,20 240,60" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="180" y="22" text-anchor="middle">action aₜ  (a guess)</text>
+  <path d="M240,92 C190,132 170,132 120,92" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="180" y="142" text-anchor="middle">observation oₜ₊₁, reward rₜ₊₁</text>
+</svg>
+<p>One run from start to finish is an <b>episode</b>; its record is a <b>trajectory</b>:</p>
+$$\tau = (o_0,\ a_0,\ r_1,\ o_1,\ a_1,\ r_2,\ \dots,\ o_T)$$
+<p>In our code this is exactly the GEM (a gym library for language-model agents) interface: <code>env.reset()</code> returns \(o_0\), and <code>env.step(action)</code> returns the next observation, the reward, and whether the episode is over. The agent is the language model; its action is the text it writes, and only the last <code>\boxed{...}</code> counts as the move.</p>
+<div class="widget" id="w-replay">
+  <div class="widget-title">Replay a real episode</div>
+  <div class="row"><select id="replay-pick"></select></div>
+  <div class="row"><button id="replay-prev">◀ Back</button><button id="replay-next" class="primary">Step ▶</button><span class="stat" id="replay-pos"></span></div>
+  <div id="replay-strip"></div>
+  <div id="replay-body"></div>
+</div>
+</section>
+
+<section id="state">
+<h2><span class="num">2</span>Hidden state and beliefs</h2>
+<div class="takeaway">Theory usually assumes the agent sees the whole state. In our games it can't (the secret number is hidden), so the agent has to carry a summary of the past: a belief.</div>
+<p>The standard model is a <b>Markov decision process</b>: states \(S\), actions \(A\), transition probabilities \(P\), rewards \(R\), and a discount \(\gamma\). "Markov" means the current state is all you need. The past adds nothing:</p>
+$$P(s_{t+1} \mid s_t, a_t) = P(s_{t+1} \mid s_0, a_0, \dots, s_t, a_t)$$
+<p>In Guess the Number the true state is the secret number, which the agent never sees. It only sees hints ("higher", "lower"). That makes it a <b>partially observable Markov decision process</b>: add observations \(o\) drawn from \(\Omega(o \mid s)\). The fix is to track a <b>belief</b>, a probability for every possible hidden state, updated with Bayes' rule after each observation:</p>
+$$b_{t+1}(s') \;\propto\; \Omega(o_{t+1} \mid s') \sum_{s} P(s' \mid s, a_t)\, b_t(s)$$
+<p>Here the secret never moves and hints are exact, so the belief is simply "uniform over the numbers still consistent with every hint." Uncertainty is measured in bits by the entropy:</p>
+$$H(b) = -\sum_s b(s)\log_2 b(s)$$
+<p>For a uniform belief over \(n\) numbers this is \(\log_2 n\).</p>
+<p>At the start \(H = \log_2 20 \approx 4.32\) bits. A guess in the middle of the remaining range removes about 1 bit, so bisection always wins within \(\lfloor \log_2 20 \rfloor + 1 = 5\) guesses.</p>
+<div class="widget" id="w-belief">
+  <div class="widget-title">Guess the Number: watch the belief shrink</div>
+  <div class="row">
+    <select id="belief-mode"></select>
+    <button id="belief-reset">New game</button>
+  </div>
+  <div id="belief-grid" class="grid20"></div>
+  <div id="belief-chart"></div>
+  <div class="row stat" id="belief-stats"></div>
+  <div class="row"><button id="belief-hint">Show the bisection guess</button><button id="belief-step" class="primary">Agent's next guess ▶</button></div>
+  <div id="belief-log" class="note"></div>
+</div>
+<p class="analogy">A belief is like a filtered estimate of a latent regime in a market model: you never observe the regime, only prices, so you carry a posterior forward and update it with each new bar.</p>
+</section>
+
+<section id="return">
+<h2><span class="num">3</span>Rewards, returns and discounting</h2>
+<div class="takeaway">The agent maximizes the return: the sum of future rewards, usually discounted so that sooner rewards count more.</div>
+$$G_t = r_{t+1} + \gamma r_{t+2} + \gamma^2 r_{t+3} + \dots = \sum_{k=0}^{T-t-1} \gamma^k\, r_{t+k+1}$$
+$$G_t = r_{t+1} + \gamma\, G_{t+1}$$
+<p>The discount \(\gamma \in [0,1]\) sets how far ahead the agent cares; a rough horizon is \(1/(1-\gamma)\) steps. The recursive form on the right is the seed of everything in the next section.</p>
+<p>Rewards are a design choice. GEM's Wordle pays <b>+0.5/3 ≈ +0.17</b> the first time each letter position turns green, <b>+0.5</b> for solving, and <b>−0.1</b> for a reply with no parseable guess (which also ends the game), so a perfect game totals 1.0. Partial credit along the way is called <b>reward shaping</b>. It speeds up learning, but it can change what the best strategy is unless it has a special "potential-difference" form (Ng, Harada and Russell, 1999). Here it pays partial credit even for a lost game, so it can reward finding letters over actually winning.</p>
+<div class="widget" id="w-return">
+  <div class="widget-title">Discount a real Wordle game</div>
+  <div class="row"><select id="return-pick"></select></div>
+  <div class="row"><div class="slider"><label>discount γ = <span id="gamma-val"></span></label><input id="gamma" type="range" min="0" max="1" step="0.01" value="0.9"></div></div>
+  <div id="return-chart"></div>
+  <div class="legend"><span><i class="swatch" style="background:var(--mid)"></i>reward rₜ</span><span><i class="swatch" style="background:var(--c1)"></i>discounted γᵏ·rₜ (what counts toward G₀)</span></div>
+  <div class="row stat" id="return-stats"></div>
+</div>
+</section>
+
+<section id="bellman">
+<h2><span class="num">4</span>Values and the Bellman equation</h2>
+<div class="takeaway">A value function predicts the return from a state. The Bellman equation says a state is worth its immediate reward plus the discounted worth of where you land. Apply that repeatedly and the values converge.</div>
+<p>For a policy \(\pi\) (a rule for choosing actions), the <b>state value</b> and <b>action value</b> are expected returns:</p>
+$$V^\pi(s) = \mathbb{E}_\pi[\,G_t \mid s_t = s\,]$$
+$$Q^\pi(s,a) = \mathbb{E}_\pi[\,G_t \mid s_t = s,\ a_t = a\,]$$
+<p>Plugging the recursive return \(G_t = r_{t+1} + \gamma G_{t+1}\) into the expectation gives the <b>Bellman equation</b>. For the best possible policy it becomes:</p>
+$$V^*(s) = \max_a \sum_{s'} P(s' \mid s, a)\,\big[\,R(s,a,s') + \gamma\, V^*(s')\,\big]$$
+<p><b>Value iteration</b> turns that equation into an update and applies it to every state ("a sweep") until nothing changes. It always converges, because each sweep shrinks the worst-case error by a factor of \(\gamma\):</p>
+$$V_{k+1}(s) \leftarrow \max_a \sum_{s'} P(s' \mid s,a)\big[R + \gamma V_k(s')\big]$$
+$$\lVert V_{k+1} - V^* \rVert_\infty \le \gamma\, \lVert V_k - V^* \rVert_\infty$$
+<p>This needs the rules (\(P\) and \(R\)), which a grid world gives us. The robot below starts bottom-left. The green cell pays +1 and ends the episode; the red cell pays −1 and ends it. Every other move costs a little, and with "slip" probability the robot moves sideways instead of where it meant to go.</p>
+<div class="widget" id="w-grid">
+  <div class="widget-title">Value iteration on a grid world</div>
+  <div id="grid-vi"></div>
+  <div class="row">
+    <div class="slider"><label>discount γ = <span id="g-gamma-val"></span></label><input id="g-gamma" type="range" min="0.5" max="0.99" step="0.01" value="0.9"></div>
+    <div class="slider"><label>slip = <span id="g-slip-val"></span></label><input id="g-slip" type="range" min="0" max="0.4" step="0.05" value="0.2"></div>
+    <div class="slider"><label>cost per move = <span id="g-cost-val"></span></label><input id="g-cost" type="range" min="-0.3" max="0" step="0.01" value="-0.04"></div>
+  </div>
+  <div class="row"><button id="vi-reset">Reset values to 0</button><button id="vi-sweep" class="primary">One sweep</button><button id="vi-solve">Solve</button></div>
+  <div class="row stat" id="vi-stats"></div>
+</div>
+<p class="note">Try it: raise the slip and the arrows next to the red cell turn away from it, taking the long, safe route. Make moves expensive (−0.3) and the robot rushes, even risking the red cell. Lower γ and far-away cells stop "seeing" the goal.</p>
+<p class="analogy">This is a discounted cash-flow valuation: a position is worth its payoff now plus the discounted value of what it turns into. Value iteration is repeatedly re-pricing every position until the prices are consistent with each other.</p>
+</section>
+
+<section id="explore">
+<h2><span class="num">5</span>Exploration versus exploitation</h2>
+<div class="takeaway">An agent that always picks what currently looks best can lock onto a mediocre option and never discover a better one. Bandits isolate that trade-off.</div>
+<p>A <b>multi-armed bandit</b> is a one-state problem: \(k\) slot machines, each paying 1 with an unknown probability \(\mu_a\). The cost of not knowing is <b>regret</b>, the reward lost compared with always pulling the best arm:</p>
+$$\text{Regret}_T = T\,\mu^* - \sum_{t=1}^{T} \mu_{a_t}$$
+<p>Three classic strategies, with \(\hat{Q}_a\) the observed average payout of arm \(a\) and \(N_a\) its pull count:</p>
+<ul>
+<li><b>ε-greedy</b>: pull the best-looking arm, except with probability ε pick at random. Simple, but it keeps exploring forever at the same rate, so regret grows linearly.</li>
+<li><b>Upper confidence bound (UCB1)</b>: be optimistic about arms you know little about: \(a_t = \arg\max_a \big[\hat{Q}_a + \sqrt{2 \ln t / N_a}\big]\).</li>
+<li><b>Thompson sampling</b>: keep a Beta posterior per arm, \(\theta_a \sim \text{Beta}(1 + \text{wins}_a,\ 1 + \text{losses}_a)\), sample one plausible payout per arm, and pull the arm with the highest sample.</li>
+</ul>
+<p>The best possible regret grows like \(\log T\) (Lai and Robbins, 1985); the upper confidence bound (UCB1) method and Thompson sampling both achieve that order.</p>
+<div class="widget" id="w-bandit">
+  <div class="widget-title">Five slot machines</div>
+  <p class="note" style="margin:0">Play yourself first: tap arms, try to find the best one.</p>
+  <div class="row" id="bandit-arms"></div>
+  <div class="row stat" id="bandit-you"></div>
+  <div class="row"><button id="bandit-reveal">Reveal true payout rates</button><button id="bandit-new">New machines</button></div>
+  <h3>Then race the three strategies (3,000 pulls, averaged over 50 runs)</h3>
+  <div class="row"><div class="slider"><label>ε for ε-greedy = <span id="eps-val"></span></label><input id="eps" type="range" min="0" max="0.5" step="0.01" value="0.1"></div></div>
+  <div class="row"><button id="bandit-run" class="primary">Run the race</button></div>
+  <div id="bandit-chart"></div>
+  <div class="legend" id="bandit-legend"></div>
+  <p class="note">Watch the shapes, not just the end values: ε-greedy's regret is a straight line (it never stops exploring), while the upper confidence bound (UCB1) method and Thompson sampling bend over like \(\log T\). Its confidence bonus is cautious, so it can trail early and win only over long runs; Thompson sampling is usually best in practice.</p>
+</div>
+<p class="note">For language models, sampling with temperature is the exploration: the training methods in section 9 draw several different answers to the same question so that better ones get a chance to be found.</p>
+</section>
+
+<section id="td">
+<h2><span class="num">6</span>Learning from experience: temporal-difference learning and Q-learning</h2>
+<div class="takeaway">Without knowing the rules, an agent can still learn values from its own moves: nudge each estimate toward "the reward I just got, plus how good I currently think the square I landed on is." The landing square is observed; only its value is a guess.</div>
+<p>Value iteration needed \(P\) and \(R\). Real agents usually only get samples \((s, a, r, s')\). Two ways to learn from them:</p>
+<ul>
+<li><b>Monte Carlo</b>: wait until the episode ends, then move \(V(s_t)\) toward the actual return \(G_t\). Unbiased, but noisy and slow.</li>
+<li><b>Temporal-difference learning</b>: update after every step using your own estimate of the next state ("bootstrapping"). The gap is the <b>temporal-difference error</b> \(\delta\).</li>
+</ul>
+<p><b>Q-learning</b> applies temporal-difference learning to action values, using the best next action even when the agent explored:</p>
+$$\delta_t = r_{t+1} + \gamma \max_{a'} Q(s_{t+1}, a') - Q(s_t, a_t)$$
+$$Q(s_t,a_t) \leftarrow Q(s_t,a_t) + \alpha\,\delta_t$$
+<p>Here \(\alpha\) is the learning rate. The robot below uses the same grid and settings as section 4, but it does not know the rules; it explores with ε-greedy and learns from its own steps.</p>
+<div class="widget" id="w-q">
+  <div class="widget-title">Q-learning on the same grid world</div>
+  <div id="grid-q"></div>
+  <div class="row">
+    <div class="slider"><label>learning rate α = <span id="q-alpha-val"></span></label><input id="q-alpha" type="range" min="0.05" max="1" step="0.05" value="0.3"></div>
+    <div class="slider"><label>exploration ε = <span id="q-eps-val"></span></label><input id="q-eps" type="range" min="0" max="0.5" step="0.05" value="0.2"></div>
+  </div>
+  <div class="row"><button id="q-reset">Reset</button><button id="q-one" class="primary">Run 1 episode</button><button id="q-many">Run 200 episodes</button></div>
+  <div id="q-chart"></div>
+  <div class="row stat" id="q-stats"></div>
+</div>
+<p class="analogy">Temporal-difference learning is how a rolling forecast gets updated: instead of waiting for the realized outcome, you correct today's forecast toward tomorrow's forecast plus what happened in between.</p>
+</section>
+
+<section id="pg">
+<h2><span class="num">7</span>Policy gradients</h2>
+<div class="takeaway">Instead of learning values, adjust the policy's probabilities directly: make actions that led to better-than-expected returns more likely. This is the family of methods used to train language models.</div>
+<p>Give the policy parameters \(\theta\) and maximize the expected return \(J(\theta) = \mathbb{E}_{\tau \sim \pi_\theta}[G(\tau)]\). We can't differentiate through the environment, but the <b>log-derivative trick</b> \(\nabla_\theta p = p\,\nabla_\theta \log p\) moves the gradient onto the policy's own probabilities:</p>
+$$\nabla_\theta J(\theta) = \mathbb{E}_{\tau \sim \pi_\theta}\Big[\sum_t \nabla_\theta \log \pi_\theta(a_t \mid s_t)\;\big(G_t - b\big)\Big]$$
+<p>That is <b>REINFORCE</b> (Williams, 1992). Sample an episode, then push up the log-probability of each action in proportion to how good the outcome was. The <b>baseline</b> \(b\) can be any number that doesn't depend on the action, because \(\mathbb{E}[\nabla_\theta \log \pi_\theta] = 0\). It doesn't change the average gradient, but a good baseline (like the average return) shrinks its noise a lot. The quantity \(G_t - b\) is called the <b>advantage</b>: how much better than usual this outcome was.</p>
+<p>For a softmax policy \(\pi(a) = e^{\theta_a} / \sum_b e^{\theta_b}\) the gradient is simple: \(\partial \log \pi(a) / \partial \theta_b = \mathbb{1}[a=b] - \pi(b)\).</p>
+<div class="widget" id="w-pg">
+  <div class="widget-title">REINFORCE with and without a baseline</div>
+  <p class="note" style="margin:0">Three actions pay noisy rewards averaging 1.0, 1.4 and 2.0, plus an offset added to every reward. The offset changes nothing about which action is best. With a baseline it changes nothing about learning either; without one, every sampled action gets pushed up, the bad ones included, and runs start locking onto the wrong action.</p>
+  <div class="row">
+    <div class="slider"><label>reward offset = <span id="pg-off-val"></span></label><input id="pg-off" type="range" min="0" max="8" step="0.5" value="3"></div>
+    <div class="slider"><label>learning rate = <span id="pg-lr-val"></span></label><input id="pg-lr" type="range" min="0.01" max="0.1" step="0.01" value="0.05"></div>
+  </div>
+  <div class="row"><button id="pg-run" class="primary">Train (40 runs × 400 steps)</button></div>
+  <div id="pg-chart"></div>
+  <div class="legend" id="pg-legend"></div>
+</div>
+</section>
+
+<section id="ppo">
+<h2><span class="num">8</span>From REINFORCE to proximal policy optimization (PPO)</h2>
+<div class="takeaway">PPO is REINFORCE with three upgrades: a learned critic supplies the baseline, advantages blend short and long lookahead, and a clipped objective lets each batch of samples be reused for several gradient steps without the policy running away from the data.</div>
+
+<h3>Step 1: a learned baseline (actor–critic)</h3>
+<p>REINFORCE's baseline \(b\) was one number for every state. A better baseline depends on the state: the value \(V(s_t)\) from section 4, learned by a second model called the <b>critic</b> (the policy is the <b>actor</b>). The advantage becomes "how much better was this action than what I expected from here":</p>
+$$A_t = Q(s_t, a_t) - V(s_t)$$
+<p>We don't know \(Q\) either, but one real step plus the critic's guess about the next state estimates it. That is the temporal-difference error from section 6, now applied to \(V\):</p>
+$$\delta_t = r_{t+1} + \gamma\, V_\phi(s_{t+1}) - V_\phi(s_t)$$
+<p>The critic \(V_\phi\) (parameters \(\phi\)) is trained by regression toward observed returns, \(L^V(\phi) = \big(V_\phi(s_t) - \hat{G}_t\big)^2\).</p>
+
+<h3>Step 2: how far to look ahead (generalized advantage estimation)</h3>
+<p>\(\delta_t\) uses one real reward and then trusts the critic. The full return \(G_t - V(s_t)\) trusts only real rewards. Generalized advantage estimation (GAE; Schulman et al., 2016) is a weighted blend of all the look-aheads in between, controlled by \(\lambda \in [0,1]\):</p>
+$$\hat{A}_t = \sum_{k=0}^{T-t-1} (\gamma\lambda)^k\, \delta_{t+k}$$
+<ul>
+<li>\(\lambda = 0\): \(\hat{A}_t = \delta_t\). Low noise, but wrong wherever the critic is wrong (biased).</li>
+<li>\(\lambda = 1\): the sum telescopes to \(\hat{A}_t = G_t - V(s_t)\), the Monte Carlo advantage. Unbiased, but it carries the noise of every later step.</li>
+</ul>
+<p>PPO usually uses \(\lambda \approx 0.95\). This is the same bias–variance trade-off as Monte Carlo versus temporal-difference learning in section 6.</p>
+<div class="widget" id="w-gae">
+  <div class="widget-title">Advantages for each turn of a real Wordle game</div>
+  <p class="note" style="margin:0">The critic here is deliberately crude: it only knows the turn number, and predicts the average remaining reward our logged Wordle games earned from that turn on. No discounting (\(\gamma = 1\)), as is common for language-model training.</p>
+  <div class="row"><select id="gae-pick"></select></div>
+  <div class="row"><div class="slider"><label>λ = <span id="gae-lam-val"></span></label><input id="gae-lam" type="range" min="0" max="1" step="0.05" value="0.95"></div></div>
+  <div id="gae-chart"></div>
+  <div class="row stat" id="gae-stats"></div>
+  <p class="note">Slide λ to 0 and each turn is judged by its own reward against the critic's expectation; slide it to 1 and every turn shares credit for the final win or loss.</p>
+</div>
+
+<h3>Step 3: reusing a batch (importance sampling and trust regions)</h3>
+<p>Sampling is the expensive part (for a language model, generating text). REINFORCE takes one gradient step and throws the samples away, because after the step they no longer come from the current policy. <b>Importance sampling</b> fixes that by reweighting each sample by how much more or less likely the new policy makes it:</p>
+$$\rho_t(\theta) = \frac{\pi_\theta(a_t \mid s_t)}{\pi_{\text{old}}(a_t \mid s_t)}, \qquad L(\theta) = \mathbb{E}_{a_t \sim \pi_{\text{old}}}\big[\rho_t(\theta)\, \hat{A}_t\big]$$
+<p>At \(\theta = \theta_{\text{old}}\), \(\rho_t = 1\) and \(\nabla_\theta L\) equals the policy gradient exactly, so maximizing this <b>surrogate objective</b> over several steps is a natural way to squeeze more out of one batch. The catch: the advantages were measured under \(\pi_{\text{old}}\), so the surrogate is only trustworthy near it. Push too far and the policy chases noise in one small batch. Trust region policy optimization (TRPO; Schulman et al., 2015) adds a hard limit on how far the policy may move, measured by the Kullback–Leibler divergence (KL, a distance between probability distributions):</p>
+$$\max_\theta\ L(\theta) \quad \text{subject to} \quad \mathbb{E}_t\big[D_{\mathrm{KL}}\big(\pi_{\text{old}}(\cdot \mid s_t) \,\Vert\, \pi_\theta(\cdot \mid s_t)\big)\big] \le \delta$$
+<p>That works, but enforcing the constraint needs second-order optimization, which is awkward at scale.</p>
+
+<h3>Step 4: the clipped objective</h3>
+<p>Proximal policy optimization (Schulman et al., 2017) gets most of the same effect with plain gradient descent. It removes the incentive to move \(\rho_t\) outside \([1-\epsilon,\ 1+\epsilon]\):</p>
+$$L^{\text{clip}}(\theta) = \mathbb{E}_t\Big[\min\big(\rho_t \hat{A}_t,\ \operatorname{clip}(\rho_t,\,1-\epsilon,\,1+\epsilon)\,\hat{A}_t\big)\Big]$$
+<ul>
+<li>Good action (\(\hat{A}_t &gt; 0\)): raising its probability pays off until \(\rho_t = 1+\epsilon\), then the objective goes flat and the gradient is zero.</li>
+<li>Bad action (\(\hat{A}_t &lt; 0\)): lowering its probability pays off until \(\rho_t = 1-\epsilon\), then flat.</li>
+<li>The \(\min\) keeps the unclipped term whenever it is worse. If an update accidentally made a bad action <i>more</i> likely, the objective still sees the full penalty and pushes back. The objective is a pessimistic estimate.</li>
+</ul>
+<div class="widget" id="w-clip">
+  <div class="widget-title">The clipped objective for one sample</div>
+  <div class="row"><div class="slider"><label>clip range ε = <span id="clip-eps-val"></span></label><input id="clip-eps" type="range" min="0.05" max="0.5" step="0.05" value="0.2"></div></div>
+  <div id="clip-chart"></div>
+  <div class="legend"><span><i class="swatch" style="background:var(--c1)"></i>advantage +1 (solid: PPO, dashed: unclipped)</span><span><i class="swatch" style="background:var(--c2)"></i>advantage −1</span><span>dotted lines: 1 − ε and 1 + ε</span></div>
+  <p class="note">The x-axis is the ratio ρ = new probability ÷ old probability. Wherever a solid line is flat, that sample stops contributing gradient.</p>
+</div>
+
+<h3>Step 5: the whole algorithm</h3>
+<p>PPO trains actor and critic together (often sharing one network) on one combined loss, where the entropy bonus \(\mathcal{H}\) keeps some exploration:</p>
+$$L(\theta, \phi) = -L^{\text{clip}}(\theta) + c_1\, L^V(\phi) - c_2\, \mathcal{H}\big[\pi_\theta(\cdot \mid s_t)\big]$$
+<ol>
+<li>Run the current policy \(\pi_{\text{old}}\) to collect a batch of steps.</li>
+<li>Compute advantages \(\hat{A}_t\) with GAE from the critic, and return targets \(\hat{G}_t = \hat{A}_t + V(s_t)\).</li>
+<li>For \(K\) epochs, take minibatch gradient steps on the loss above.</li>
+<li>Set \(\pi_{\text{old}} \leftarrow \pi_\theta\) and repeat.</li>
+</ol>
+<div class="widget" id="w-ppo">
+  <div class="widget-title">Reusing each batch, with and without clipping</div>
+  <p class="note" style="margin:0">The three-action problem from section 7 (mean rewards 1.0, 1.4, 2.0, noisy). Each batch is 8 samples; the advantage is reward minus the batch average. Compare one gradient step per batch (REINFORCE) with \(K\) steps on the same batch, unclipped and clipped.</p>
+  <div class="row">
+    <div class="slider"><label>epochs per batch K = <span id="ppo-k-val"></span></label><input id="ppo-k" type="range" min="1" max="20" step="1" value="10"></div>
+    <div class="slider"><label>clip range ε = <span id="ppo-eps-val"></span></label><input id="ppo-eps" type="range" min="0.05" max="0.5" step="0.05" value="0.2"></div>
+  </div>
+  <div class="row"><button id="ppo-run" class="primary">Train (100 runs × 60 batches)</button></div>
+  <h3>Probability of the best action, averaged over 100 runs</h3>
+  <div id="ppo-chart"></div>
+  <div class="legend" id="ppo-legend"></div>
+  <p class="note">With a few epochs, reuse learns faster from the same samples. Raise K and the unclipped version starts overfitting each noisy batch: some runs lock onto a worse action, and the average distance moved per batch (the KL divergence) jumps. Clipping removes the incentive to move far on any one batch, so the policy stays close to the data. A larger learning rate would also speed up plain REINFORCE, but it would not get more learning out of each expensive sample.</p>
+</div>
+<p class="note">Many small details matter in practice: advantage normalization, clipping the value loss, learning-rate schedules, stopping early when the KL divergence grows too large. Huang et al. (2022) list 37 of them.</p>
+</section>
+
+<section id="llm">
+<h2><span class="num">9</span>Training language models with reinforcement learning</h2>
+<div class="takeaway">A language model is a policy over tokens. For tasks with checkable answers, sample several answers per question, score them, and push up the ones that beat their group's average. That is group-relative policy optimization (GRPO).</div>
+<p>As a decision process: the state is the prompt plus the tokens written so far, \(s_t = (x, y_{&lt;t})\); the action is the next token \(y_t\); the reward usually arrives once at the end, from a checker \(r(x, y)\). Rewards from a program rather than a human are called <b>verifiable rewards</b>; that is what Reasoning Gym and GEM provide.</p>
+<h3>Proximal policy optimization (PPO) for language models</h3>
+<p>This is the method behind reinforcement learning from human feedback (RLHF) in InstructGPT (Ouyang et al., 2022). Each token is one step of section 8's algorithm, and the ratio \(\rho_t\) compares token probabilities under the new and old model. Two parts are specific to language models:</p>
+<ul>
+<li>The reward is a score for the finished answer, from a learned reward model (trained on human preferences) or a checker. Each token also pays a small penalty for drifting from the starting model, \(-\beta \log\big(\pi_\theta(y_t) / \pi_{\text{ref}}(y_t)\big)\).</li>
+<li>The critic must predict, after every token, how the answer will be scored. It is usually a copy of the language model with a value head, so training holds two large models in memory.</li>
+</ul>
+<h3>Group-relative policy optimization (GRPO)</h3>
+<p>This method (Shao et al., 2024, used for DeepSeek-R1) drops the critic. For each prompt it samples a group of \(G\) answers, scores them, and uses each answer's standing within its group as the advantage for every one of its tokens:</p>
+$$A_i = \frac{r_i - \operatorname{mean}(r_1, \dots, r_G)}{\operatorname{std}(r_1, \dots, r_G)}$$
+$$\begin{aligned} J(\theta) = {} & \frac{1}{G}\sum_{i=1}^{G} \frac{1}{|y_i|} \sum_{t=1}^{|y_i|} \min\big(\rho_{i,t} A_i,\ \operatorname{clip}(\rho_{i,t}, 1-\epsilon, 1+\epsilon) A_i\big) \ & -\, \beta\, D_{\mathrm{KL}}\big(\pi_\theta \,\Vert\, \pi_{\text{ref}}\big) \end{aligned}$$
+<p>The last term is a Kullback–Leibler divergence penalty that keeps the model near its starting point \(\pi_{\text{ref}}\), so it doesn't forget how to write while chasing reward.</p>
+<div class="widget" id="w-grpo">
+  <div class="widget-title">Group-relative policy optimization on one puzzle, by hand</div>
+  <p class="note" style="margin:0">A toy model answers with one of four kinds of reply. Scoring uses GEM's game rules: correct +1, wrong 0, no parseable answer −0.1.</p>
+  <div id="grpo-policy"></div>
+  <div class="row"><div class="slider"><label>group size G = <span id="grpo-g-val"></span></label><input id="grpo-g" type="range" min="2" max="16" step="1" value="8"></div></div>
+  <div class="row"><button id="grpo-sample" class="primary">Sample a group</button><button id="grpo-update">Apply the update</button><button id="grpo-train">Train 100 steps</button><button id="grpo-reset">Reset</button></div>
+  <div id="grpo-group"></div>
+  <div id="grpo-chart"></div>
+  <div class="legend" id="grpo-legend"></div>
+  <div class="row stat" id="grpo-stats"></div>
+  <p class="note">Train it and look at which correct answer wins. Both score +1, so group-relative policy optimization has no reason to prefer the concise one: whichever gets lucky early snowballs. If you want short answers, the reward has to say so. Notice too how many groups carry no signal once the model is usually right.</p>
+</div>
+<p>Two things the toy makes visible:</p>
+<ul>
+<li><b>No spread, no signal.</b> If every answer in the group gets the same score, every advantage is zero and nothing is learned. Haiku won all 6 of our episodes, so as a training batch for Haiku they would teach it nothing. Tasks must be hard enough to sometimes fail and easy enough to sometimes succeed, which is why Reasoning Gym lets you dial difficulty.</li>
+<li><b>Length matters.</b> Qwen with thinking on ran out of tokens before answering in 3 of its 6 games, scoring −0.1 each time; group-relative policy optimization (GRPO) would push those rambling replies down. The \(1/|y_i|\) term also has side effects: Liu et al. (2025) showed it penalizes long wrong answers less per token, which can make models wordier, and proposed dropping it (their "Dr. GRPO" variant).</li>
+</ul>
+</section>
+
+<section id="transfer">
+<h2><span class="num">10</span>What is the state of a language-model agent?</h2>
+<div class="takeaway">A language-model agent has no hidden memory between turns: its state is whatever we hand it each turn. Choosing that hand-off is the "state transfer" question this project is named for.</div>
+<p>In section 2 the ideal state for Guess the Number was a belief: two numbers, the low and high end of what's still possible. Our agents never get that. Each turn, <code>render_prompt</code> in <code>run.py</code> hands them a block of text, and they must re-derive the belief from it. Possible hand-offs:</p>
+<ul>
+<li><b>Full history, thinking included.</b> Nothing is lost, but the prompt grows every turn.</li>
+<li><b>Full history without earlier thinking.</b> What we do now, and what Qwen's own chat template does. Smaller, but the model re-plans from scratch each turn.</li>
+<li><b>Rules plus the latest feedback only.</b> Tiny, but it breaks the Markov property: earlier hints are gone.</li>
+<li><b>A compact belief.</b> Hand over a summary ("it's between 7 and 9"). Ideal if the summary is right, but someone has to write it: a program, the model itself, or a learned module.</li>
+<li><b>Hidden state instead of text.</b> Carry the model's internal state between turns (its attention key–value cache or hidden activations) rather than re-reading text. Recurrent and state-space architectures (for example Mamba) do this by design, compressing all history into a fixed-size vector.</li>
+</ul>
+<div class="widget" id="w-transfer">
+  <div class="widget-title">Four hand-offs on a real game</div>
+  <div class="row"><select id="tr-pick"></select></div>
+  <div id="tr-size"></div>
+  <div class="legend" id="tr-size-legend"></div>
+  <div id="tr-bits-wrap"><h3>How much of the hidden number each hand-off still pins down</h3><div id="tr-bits"></div><div class="legend" id="tr-bits-legend"></div></div>
+  <p class="note" id="tr-note"></p>
+</div>
+</section>
+
+<section id="sources">
+<h2><span class="num">11</span>Sources</h2>
+<ul>
+<li>Sutton and Barto, <a href="http://incompleteideas.net/book/the-book-2nd.html">Reinforcement Learning: An Introduction</a> (2nd edition, free online): the standard textbook for sections 1–8.</li>
+<li>OpenAI, <a href="https://spinningup.openai.com/">Spinning Up in Deep RL</a>: policy-gradient derivations and proximal policy optimization (PPO), with code.</li>
+<li>Karpathy, <a href="https://cs.stanford.edu/people/karpathy/reinforcejs/">REINFORCEjs</a>: the classic in-browser grid-world demos this lesson's widgets resemble.</li>
+<li>Williams (1992), "Simple statistical gradient-following algorithms for connectionist reinforcement learning": REINFORCE.</li>
+<li>Ng, Harada and Russell (1999), "Policy invariance under reward transformations": when reward shaping is safe.</li>
+<li>Lai and Robbins (1985); Auer, Cesa-Bianchi and Fischer (2002): bandit regret bounds and the upper confidence bound (UCB1) method.</li>
+<li>Schulman et al. (2015), <a href="https://arxiv.org/abs/1502.05477">Trust Region Policy Optimization</a>; Schulman et al. (2016), <a href="https://arxiv.org/abs/1506.02438">High-Dimensional Continuous Control Using Generalized Advantage Estimation</a>.</li>
+<li>Schulman et al. (2017), <a href="https://arxiv.org/abs/1707.06347">Proximal Policy Optimization Algorithms</a>. Huang et al. (2022), <a href="https://iclr-blog-track.github.io/2022/03/25/ppo-implementation-details/">The 37 Implementation Details of Proximal Policy Optimization</a>.</li>
+<li>Ouyang et al. (2022), <a href="https://arxiv.org/abs/2203.02155">Training language models to follow instructions with human feedback</a> (InstructGPT): PPO for language models.</li>
+<li>Shao et al. (2024), <a href="https://arxiv.org/abs/2402.03300">DeepSeekMath</a>: introduces group-relative policy optimization (GRPO). DeepSeek-AI (2025), <a href="https://arxiv.org/abs/2501.12948">DeepSeek-R1</a>.</li>
+<li>Liu et al. (2025), <a href="https://arxiv.org/abs/2503.20783">Understanding R1-Zero-Like Training: A Critical Perspective</a>: the group-relative policy optimization (GRPO) length bias and the "Dr. GRPO" fix.</li>
+<li><a href="https://arxiv.org/abs/2510.01051">GEM: A Gym for Agentic LLMs</a> and <a href="https://arxiv.org/abs/2505.24760">Reasoning Gym</a>: the environments our agents played.</li>
+<li>Zou et al. (2026), <a href="https://arxiv.org/abs/2511.20639">Latent Collaboration in Multi-Agent Systems</a> (LatentMAS): agents hand each other their key–value caches instead of text.</li>
+<li>Li, An and Du (2026), <a href="https://arxiv.org/abs/2604.13349">When Less Latent Leads to Better Relay</a>: compressing that key–value relay to a fifth of its size.</li>
+<li>Cheng, Das and Ramnath (2026), <a href="https://arxiv.org/abs/2608.04893">When Does Latent Communication Pay?</a>: hidden-state hand-offs help only when the receiver needs the sender's private information.</li>
+</ul>
+</section>
+
+</main>
+<script>
+// ---------- small helpers ----------
+const NS = "http://www.w3.org/2000/svg";
+function el(tag, attrs = {}, ...kids) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) k === "class" ? n.className = v : n.setAttribute(k, v);
+  for (const k of kids) n.append(k);
+  return n;
+}
+function s(tag, attrs = {}, ...kids) {
+  const n = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+  for (const k of kids) n.append(k);
+  return n;
+}
+const $ = id => document.getElementById(id);
+const fmt = (x, d = 2) => (x >= 0 ? "" : "−") + Math.abs(x).toFixed(d);
+const stripThinking = t => (t || "").replace(/<think>[\s\S]*?<\/think>\s*/g, "");
+const lastBoxed = t => { const m = [...stripThinking(t).matchAll(/\\boxed\{([^}]*)\}/g)]; return m.length ? m[m.length - 1][1] : null; };
+function rng(seed) {  // mulberry32: small seeded random generator so demos are repeatable
+  return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+}
+function rewardPill(r) {
+  const cls = r > 0 ? "good" : r < 0 ? "bad" : "zero";
+  return el("span", { class: "pill " + cls }, (r > 0 ? "+" : "") + fmt(r));
+}
+// Bar chart in SVG: bars = [{label, value, color, title}], symmetric around zero when needed.
+function barChart(bars, { height = 150, yMin, yMax, labelEvery = 1 } = {}) {
+  const W = 360, H = height, padL = 34, padB = 22, padT = 8;
+  const lo = Math.min(0, yMin ?? Math.min(...bars.map(b => b.value)));
+  const hi = Math.max(0, yMax ?? Math.max(...bars.map(b => b.value)));
+  const span = hi - lo || 1, y = v => padT + (hi - v) / span * (H - padT - padB);
+  const g = s("svg", { viewBox: `0 0 ${W} ${H}` });
+  const ticks = [];
+  for (const t of [0, hi, lo]) if (ticks.every(u => Math.abs(y(u) - y(t)) >= 12)) ticks.push(t);
+  for (const t of ticks) {
+    g.append(s("line", { x1: padL, x2: W, y1: y(t), y2: y(t), stroke: "var(--line)" }));
+    g.append(s("text", { x: padL - 4, y: y(t) + 3, "text-anchor": "end" }, fmt(t, Math.abs(t) < 1 && t !== 0 ? 2 : 1)));
+  }
+  const bw = (W - padL) / bars.length;
+  bars.forEach((b, i) => {
+    const x = padL + i * bw + bw * 0.15, w = bw * 0.7, y0 = y(0), y1 = y(b.value);
+    const r = s("rect", { x, y: Math.min(y0, y1), width: w, height: Math.max(1, Math.abs(y1 - y0)), rx: 2, fill: b.color });
+    if (b.title) r.append(s("title", {}, b.title));
+    g.append(r);
+    if (b.label !== undefined && i % labelEvery === 0)
+      g.append(s("text", { x: x + w / 2, y: H - 6, "text-anchor": "middle" }, b.label));
+  });
+  return g;
+}
+// Line chart: series = [{name, color, dash, points:[[x,y],...], band:[[x,lo,hi],...]}]; vlines = dotted x markers
+function lineChart(series, { height = 180, yMin, yMax, xLabel = "", yLabel = "", vlines = [] } = {}) {
+  const W = 360, H = height, padL = 38, padB = 26, padT = 10, padR = 8;
+  const all = series.flatMap(sr => sr.points);
+  const xs = all.map(p => p[0]), ys = all.map(p => p[1]);
+  const x0 = Math.min(...xs), x1 = Math.max(...xs);
+  const y0 = yMin ?? Math.min(0, ...ys), y1 = yMax ?? Math.max(...ys);
+  const X = v => padL + (v - x0) / ((x1 - x0) || 1) * (W - padL - padR);
+  const Y = v => padT + (y1 - v) / ((y1 - y0) || 1) * (H - padT - padB);
+  const g = s("svg", { viewBox: `0 0 ${W} ${H}` });
+  for (let i = 0; i <= 4; i++) {
+    const v = y0 + (y1 - y0) * i / 4;
+    g.append(s("line", { x1: padL, x2: W - padR, y1: Y(v), y2: Y(v), stroke: "var(--line)" }));
+    g.append(s("text", { x: padL - 4, y: Y(v) + 3, "text-anchor": "end" }, Math.abs(y1 - y0) < 5 ? v.toFixed(2) : Math.round(v)));
+  }
+  g.append(s("text", { x: W - padR, y: H - 6, "text-anchor": "end" }, `${x1.toLocaleString()} ${xLabel}`));
+  g.append(s("text", { x: padL, y: H - 6 }, x0));
+  if (yLabel) g.append(s("text", { x: padL + 4, y: padT + 10 }, yLabel));
+  for (const v of vlines) g.append(s("line", { x1: X(v), x2: X(v), y1: padT, y2: H - padB, stroke: "var(--muted)", "stroke-dasharray": "2 3" }));
+  for (const sr of series) {
+    if (sr.band) g.append(s("path", { d: "M" + sr.band.map(p => `${X(p[0])},${Y(p[2])}`).join("L") + "L" +
+      sr.band.slice().reverse().map(p => `${X(p[0])},${Y(p[1])}`).join("L") + "Z", fill: sr.color, opacity: 0.15 }));
+    g.append(s("path", { d: "M" + sr.points.map(p => `${X(p[0])},${Y(p[1])}`).join("L"), fill: "none",
+      stroke: sr.color, "stroke-width": 2, "stroke-linejoin": "round", ...(sr.dash ? { "stroke-dasharray": sr.dash } : {}) }));
+  }
+  return g;
+}
+
+// ---------- real episodes from the Agent I/O log ----------
+let EPISODES = [];
+const epLabel = e => `${e.agent} · ${e.env.replace("game:", "").replace("rg:", "")} · seed ${e.seed} · return ${fmt(e.return)}`;
+function turns(e) {  // [{obs, action, reward}] with obs = what the agent saw before acting
+  const out = [], m = e.messages;
+  for (let i = 1; i < m.length; i += 2) out.push({ obs: m[i - 1].content, action: m[i].content, reward: m[i + 1]?.reward ?? 0, next: m[i + 1]?.content });
+  return out;
+}
+
+// ---------- 1. replay ----------
+const replay = { ep: null, t: 0 };
+function renderReplay() {
+  const e = replay.ep, body = $("replay-body"), strip = $("replay-strip");
+  if (!e) { body.replaceChildren(el("p", { class: "note" }, "No logged episodes found.")); return; }
+  const T = turns(e), t = Math.min(replay.t, T.length - 1), step = T[t];
+  $("replay-pos").textContent = `turn ${t + 1} of ${T.length}`;
+  $("replay-prev").disabled = t === 0; $("replay-next").disabled = t === T.length - 1;
+  strip.replaceChildren(barChart(T.map((x, i) => ({ label: i + 1, value: x.reward, color: i === t ? "var(--c1)" : "var(--mid)",
+    title: `turn ${i + 1}: reward ${fmt(x.reward)}` })), { height: 90, yMin: Math.min(-0.1, ...T.map(x => x.reward)), yMax: 1 }));
+  const action = stripThinking(step.action), move = lastBoxed(step.action);
+  const actionPre = el("pre");
+  const parts = action.split(/(\\boxed\{[^}]*\})/);
+  parts.forEach((p, i) => actionPre.append(i % 2 ? el("span", { class: "boxed" }, p) : p));
+  const obs = step.obs.length > 700 ? "…" + step.obs.slice(-700) : step.obs;
+  body.replaceChildren(
+    el("h3", {}, `Observation o${sub(t)} (what the agent read)`), el("pre", {}, obs),
+    el("h3", {}, `Action a${sub(t)} (its reply; the move is `, el("span", { class: "boxed" }, move ?? "missing"), ")"), actionPre,
+    el("h3", {}, "Reward r", sub(t + 1), " ", rewardPill(step.reward), " and what the environment said back"),
+    el("pre", {}, (step.next || "").replace("<｜TERMINAL_STATE｜>", "(episode over)")),
+    el("p", { class: "stat" }, "Return so far (undiscounted sum): ", el("b", {}, fmt(T.slice(0, t + 1).reduce((a, x) => a + x.reward, 0)))));
+}
+const sub = n => String(n).split("").map(d => "₀₁₂₃₄₅₆₇₈₉"[d]).join("");
+
+// ---------- 2. belief (Guess the Number, 1..20) ----------
+const belief = { mode: "you", target: 0, lo: 1, hi: 20, guesses: [], ep: null, agentGuesses: [], k: 0, hint: false };
+function gtnFromEpisode(e) {  // the agent's guesses and the secret, parsed from the log
+  const gs = turns(e).map(x => Number(lastBoxed(x.action))).filter(Number.isFinite);
+  const win = e.messages.map(m => /correct number (\d+)/.exec(m.content)).find(Boolean);
+  return { guesses: gs, target: win ? Number(win[1]) : null };
+}
+function resetBelief() {
+  Object.assign(belief, { lo: 1, hi: 20, guesses: [], k: 0, hint: false });
+  if (belief.mode === "you") belief.target = 1 + Math.floor(Math.random() * 20);
+  else { const g = gtnFromEpisode(belief.ep); belief.agentGuesses = g.guesses; belief.target = g.target; }
+  renderBelief();
+}
+function guess(n) {
+  if (belief.guesses.at(-1)?.n === belief.target) return;
+  const before = belief.hi - belief.lo + 1;
+  if (n < belief.target) belief.lo = Math.max(belief.lo, n + 1);
+  else if (n > belief.target) belief.hi = Math.min(belief.hi, n - 1);
+  else { belief.lo = belief.hi = n; }
+  const after = belief.hi - belief.lo + 1;
+  belief.guesses.push({ n, bits: Math.log2(before / after), fb: n < belief.target ? "higher" : n > belief.target ? "lower" : "correct" });
+  renderBelief();
+}
+function renderBelief() {
+  const grid = $("belief-grid"), done = belief.guesses.at(-1)?.fb === "correct", n = belief.hi - belief.lo + 1;
+  const bis = Math.floor((belief.lo + belief.hi) / 2);
+  grid.replaceChildren(...Array.from({ length: 20 }, (_, i) => {
+    const v = i + 1, b = el("button", {}, String(v));
+    if (v < belief.lo || v > belief.hi) b.classList.add("out");
+    if (done && v === belief.target) b.classList.add("hit");
+    if (belief.hint && v === bis && !done) b.classList.add("primary");
+    b.disabled = belief.mode !== "you" || done;
+    b.onclick = () => guess(v);
+    return b;
+  }));
+  $("belief-chart").replaceChildren(barChart(Array.from({ length: 20 }, (_, i) => {
+    const v = i + 1, p = v >= belief.lo && v <= belief.hi ? 1 / n : 0;
+    return { label: v, value: p, color: p ? "var(--c1)" : "var(--faint)", title: `b(${v}) = ${p.toFixed(3)}` };
+  }), { height: 110, yMin: 0, yMax: Math.max(0.2, 1 / n), labelEvery: 1 }));
+  const H = Math.log2(n);
+  $("belief-stats").replaceChildren(
+    el("span", {}, "still possible: ", el("b", {}, `${belief.lo}–${belief.hi} (${n})`)),
+    el("span", {}, " · entropy H = ", el("b", {}, `${H.toFixed(2)} bits`)),
+    el("span", {}, " · guesses: ", el("b", {}, String(belief.guesses.length))));
+  $("belief-log").replaceChildren(...belief.guesses.map((g, i) =>
+    el("div", {}, `Guess ${i + 1}: ${g.n} → ${g.fb}. Information gained: ${g.bits.toFixed(2)} bits.`)));
+  if (done) $("belief-log").append(el("div", {}, el("b", {}, `Solved in ${belief.guesses.length} guesses. Bisection never needs more than 5.`)));
+  $("belief-step").style.display = belief.mode === "you" ? "none" : "";
+  $("belief-step").disabled = done || belief.k >= belief.agentGuesses.length;
+  $("belief-grid").style.display = "";
+}
+
+// ---------- 3. return and discounting ----------
+function renderReturn() {
+  const pick = $("return-pick"), e = EPISODES.find(x => x.id === pick.value), g = Number($("gamma").value);
+  $("gamma-val").textContent = g.toFixed(2);
+  if (!e) { $("return-chart").replaceChildren(el("p", { class: "note" }, "No logged Wordle episodes yet.")); return; }
+  const T = turns(e), bars = [];
+  T.forEach((x, k) => {
+    bars.push({ value: x.reward, color: "var(--mid)", title: `turn ${k + 1}: reward ${fmt(x.reward)}` });
+    bars.push({ label: k + 1, value: Math.pow(g, k) * x.reward, color: "var(--c1)", title: `turn ${k + 1}: γ^${k}·r = ${fmt(Math.pow(g, k) * x.reward, 3)}` });
+  });
+  $("return-chart").replaceChildren(barChart(bars, { height: 150, yMin: -0.1, yMax: 0.7 }));
+  const G = T.reduce((a, x, k) => a + Math.pow(g, k) * x.reward, 0), raw = T.reduce((a, x) => a + x.reward, 0);
+  $("return-stats").replaceChildren(
+    el("span", {}, "undiscounted sum: ", el("b", {}, fmt(raw))),
+    el("span", {}, " · discounted return G₀: ", el("b", {}, fmt(G, 3))),
+    el("span", {}, " · horizon 1/(1−γ) ≈ ", el("b", {}, g < 1 ? (1 / (1 - g)).toFixed(1) + " turns" : "∞")));
+}
+
+// ---------- wiring ----------
+function fillSelect(sel, items, label) {
+  sel.replaceChildren(...items.map(e => el("option", { value: e.id }, label(e))));
+}
+async function init() {
+  try { EPISODES = (await (await fetch("api/episodes", { cache: "no-store" })).json()).filter(e => e.turns > 0); }
+  catch { EPISODES = []; }
+  // 1. replay: prefer a multi-turn Wordle game
+  const multi = EPISODES.filter(e => e.turns > 1);
+  fillSelect($("replay-pick"), EPISODES, epLabel);
+  replay.ep = multi.find(e => e.env.includes("Wordle")) || EPISODES[0];
+  if (replay.ep) $("replay-pick").value = replay.ep.id;
+  $("replay-pick").onchange = ev => { replay.ep = EPISODES.find(e => e.id === ev.target.value); replay.t = 0; renderReplay(); };
+  $("replay-prev").onclick = () => { replay.t--; renderReplay(); };
+  $("replay-next").onclick = () => { replay.t++; renderReplay(); };
+  renderReplay();
+  // 2. belief: you play, or replay an agent's Guess the Number game
+  const gtn = EPISODES.filter(e => e.env.includes("GuessTheNumber") && gtnFromEpisode(e).target);
+  $("belief-mode").replaceChildren(el("option", { value: "you" }, "You play (secret is random)"),
+    ...gtn.map(e => el("option", { value: e.id }, "Replay " + epLabel(e))));
+  $("belief-mode").onchange = ev => {
+    belief.mode = ev.target.value === "you" ? "you" : "agent";
+    belief.ep = EPISODES.find(e => e.id === ev.target.value) || null; resetBelief();
+  };
+  $("belief-reset").onclick = resetBelief;
+  $("belief-hint").onclick = () => { belief.hint = !belief.hint; renderBelief(); };
+  $("belief-step").onclick = () => { guess(belief.agentGuesses[belief.k++]); };
+  resetBelief();
+  // 3. return: Wordle episodes
+  const wordle = EPISODES.filter(e => e.env.includes("Wordle"));
+  fillSelect($("return-pick"), wordle, epLabel);
+  $("return-pick").onchange = renderReturn;
+  $("gamma").oninput = renderReturn;
+  renderReturn();
+  // 4. value iteration (sliders re-solve; buttons step from zero)
+  for (const id of ["g-gamma", "g-slip", "g-cost"]) $(id).oninput = solveAndRender;
+  $("vi-reset").onclick = () => { vi.V = new Float64Array(25); vi.k = 0; vi.delta = null; renderVI(); };
+  $("vi-sweep").onclick = () => { [vi.V, vi.delta] = sweep(vi.V, gwSettings()); vi.k++; renderVI(); };
+  $("vi-solve").onclick = solveAndRender;
+  solveAndRender();
+  // 5. bandit
+  $("eps").oninput = () => { $("eps-val").textContent = Number($("eps").value).toFixed(2); };
+  $("eps").oninput();
+  $("bandit-reveal").onclick = () => { bandit.reveal = !bandit.reveal; renderBandit(); };
+  $("bandit-new").onclick = newBandit;
+  $("bandit-run").onclick = raceBandit;
+  newBandit();
+  // 6. Q-learning
+  $("q-alpha").oninput = renderQ; $("q-eps").oninput = renderQ;
+  $("q-reset").onclick = resetQ;
+  $("q-one").onclick = () => { qEpisode(); renderQ(); };
+  $("q-many").onclick = () => { for (let i = 0; i < 200; i++) qEpisode(); renderQ(); };
+  resetQ();
+  // 7. REINFORCE
+  $("pg-lr").oninput = () => { $("pg-lr-val").textContent = Number($("pg-lr").value).toFixed(2); };
+  $("pg-off").oninput = () => { $("pg-off-val").textContent = Number($("pg-off").value).toFixed(1); };
+  $("pg-lr").onchange = runPG; $("pg-off").onchange = runPG;  // re-train when a slider is released
+  $("pg-lr").oninput(); $("pg-off").oninput();
+  $("pg-run").onclick = runPG;
+  runPG();
+  // 8. GAE on real Wordle games, the clipped objective, PPO toy
+  const wordleGames = EPISODES.filter(e => e.env.includes("Wordle"));
+  fillSelect($("gae-pick"), wordleGames, epLabel);
+  const longest = wordleGames.reduce((a, e) => (!a || e.turns > a.turns ? e : a), null);
+  if (longest) $("gae-pick").value = longest.id;
+  $("gae-pick").onchange = renderGAE; $("gae-lam").oninput = renderGAE;
+  renderGAE();
+  $("clip-eps").oninput = renderClip;
+  renderClip();
+  $("ppo-k").oninput = () => { $("ppo-k-val").textContent = $("ppo-k").value; };
+  $("ppo-eps").oninput = () => { $("ppo-eps-val").textContent = Number($("ppo-eps").value).toFixed(2); };
+  $("ppo-k").onchange = runPPO; $("ppo-eps").onchange = runPPO;  // re-train when a slider is released
+  $("ppo-k").oninput(); $("ppo-eps").oninput();
+  $("ppo-run").onclick = runPPO;
+  runPPO();
+  // 9. GRPO
+  $("grpo-g").oninput = renderGRPO;
+  $("grpo-sample").onclick = () => { sampleGroup(); renderGRPO(); };
+  $("grpo-update").onclick = () => { applyGRPO(); grpo.group = []; renderGRPO(); };
+  $("grpo-train").onclick = () => { for (let i = 0; i < 100; i++) { sampleGroup(); applyGRPO(); } grpo.group = []; renderGRPO(); };
+  $("grpo-reset").onclick = resetGRPO;
+  resetGRPO();
+  // 10. hand-offs: multi-turn games
+  const multiTurn = EPISODES.filter(e => e.turns > 1);
+  fillSelect($("tr-pick"), multiTurn, epLabel);
+  const hasThinking = e => e.messages.some(m => m.content.startsWith("<think>"));
+  const firstGTN = multiTurn.find(e => e.env.includes("GuessTheNumber") && hasThinking(e)) || multiTurn.find(e => e.env.includes("GuessTheNumber"));
+  if (firstGTN) $("tr-pick").value = firstGTN.id;
+  $("tr-pick").onchange = renderTransfer;
+  renderTransfer();
+}
+// ---------- 4 and 6. grid world: rules, value iteration, Q-learning ----------
+const GW = { R: 5, C: 5, start: [4, 0], goal: [0, 4], pit: [1, 4], walls: new Set(["1,1", "1,2", "3,3"]) };
+const ACTS = [[-1, 0], [0, 1], [1, 0], [0, -1]], ARROWS = ["↑", "→", "↓", "←"];
+const idx = (r, c) => r * GW.C + c;
+const isWall = (r, c) => GW.walls.has(r + "," + c);
+const isGoal = (r, c) => r === GW.goal[0] && c === GW.goal[1];
+const isPit = (r, c) => r === GW.pit[0] && c === GW.pit[1];
+const isTerm = (r, c) => isGoal(r, c) || isPit(r, c);
+function move(r, c, a) {
+  const nr = r + ACTS[a][0], nc = c + ACTS[a][1];
+  return nr < 0 || nc < 0 || nr >= GW.R || nc >= GW.C || isWall(nr, nc) ? [r, c] : [nr, nc];
+}
+function gwSettings() {
+  return { gamma: Number($("g-gamma").value), slip: Number($("g-slip").value), cost: Number($("g-cost").value) };
+}
+function outcomes(r, c, a, slip) {  // [[probability, r', c']]: intended move, or a sideways slip
+  const o = [[1 - slip, ...move(r, c, a)]];
+  if (slip > 0) o.push([slip / 2, ...move(r, c, (a + 1) % 4)], [slip / 2, ...move(r, c, (a + 3) % 4)]);
+  return o;
+}
+const gwReward = (r, c, cost) => isGoal(r, c) ? 1 : isPit(r, c) ? -1 : cost;
+function qValue(V, r, c, a, st) {
+  return outcomes(r, c, a, st.slip).reduce((sum, [p, nr, nc]) =>
+    sum + p * (gwReward(nr, nc, st.cost) + (isTerm(nr, nc) ? 0 : st.gamma * V[idx(nr, nc)])), 0);
+}
+function sweep(V, st) {
+  const N = new Float64Array(GW.R * GW.C); let delta = 0;
+  for (let r = 0; r < GW.R; r++) for (let c = 0; c < GW.C; c++) {
+    if (isWall(r, c) || isTerm(r, c)) continue;
+    const best = Math.max(...[0, 1, 2, 3].map(a => qValue(V, r, c, a, st)));
+    N[idx(r, c)] = best; delta = Math.max(delta, Math.abs(best - V[idx(r, c)]));
+  }
+  return [N, delta];
+}
+function solveVI(st) { let V = new Float64Array(GW.R * GW.C), d = 1, k = 0; while (d > 1e-6 && k < 1000) { [V, d] = sweep(V, st); k++; } return [V, k]; }
+function drawGrid(container, V, policy, path) {
+  const S = 64, g = s("svg", { viewBox: `0 0 ${GW.C * S} ${GW.R * S}`, style: "max-width:340px;margin:0 auto" });
+  const maxAbs = Math.max(1, ...Array.from(V).map(Math.abs));
+  for (let r = 0; r < GW.R; r++) for (let c = 0; c < GW.C; c++) {
+    const x = c * S, y = r * S, v = V[idx(r, c)];
+    let fill = v >= 0 ? "var(--pos)" : "var(--neg)", op = 0.08 + 0.55 * Math.abs(v) / maxAbs, label = v.toFixed(2), big = policy && policy[idx(r, c)] >= 0 ? ARROWS[policy[idx(r, c)]] : "";
+    if (isWall(r, c)) { fill = "var(--muted)"; op = 0.5; label = ""; big = ""; }
+    if (isGoal(r, c)) { fill = "var(--good)"; op = 0.45; label = "goal"; big = "+1"; }
+    if (isPit(r, c)) { fill = "var(--bad)"; op = 0.45; label = "pit"; big = "−1"; }
+    g.append(s("rect", { x: x + 1, y: y + 1, width: S - 2, height: S - 2, rx: 6, fill, "fill-opacity": op }));
+    g.append(s("text", { x: x + S / 2, y: y + 16, "text-anchor": "middle", style: "font-size:11px;fill:var(--fg)" }, label));
+    g.append(s("text", { x: x + S / 2, y: y + 46, "text-anchor": "middle", style: "font-size:22px;fill:var(--fg)" }, big));
+    if (r === GW.start[0] && c === GW.start[1]) g.append(s("text", { x: x + 6, y: y + S - 6, style: "font-size:10px;fill:var(--fg)" }, "start"));
+  }
+  if (path && path.length > 1) g.append(s("polyline", { points: path.map(([r, c]) => `${c * S + S / 2},${r * S + S / 2 + 6}`).join(" "),
+    fill: "none", stroke: "var(--c2)", "stroke-width": 3, "stroke-linejoin": "round", "stroke-linecap": "round", opacity: 0.85 }));
+  container.replaceChildren(g);
+}
+const greedyPolicy = (V, st) => Array.from({ length: GW.R * GW.C }, (_, i) => {
+  const r = Math.floor(i / GW.C), c = i % GW.C;
+  if (isWall(r, c) || isTerm(r, c)) return -1;
+  const qs = [0, 1, 2, 3].map(a => qValue(V, r, c, a, st)); return qs.indexOf(Math.max(...qs));
+});
+const vi = { V: new Float64Array(25), k: 0, delta: null };
+function renderVI() {
+  const st = gwSettings();
+  $("g-gamma-val").textContent = st.gamma.toFixed(2); $("g-slip-val").textContent = st.slip.toFixed(2); $("g-cost-val").textContent = fmt(st.cost);
+  drawGrid($("grid-vi"), vi.V, vi.k ? greedyPolicy(vi.V, st) : null);
+  $("vi-stats").replaceChildren(el("span", {}, "sweeps: ", el("b", {}, String(vi.k))),
+    el("span", {}, " · biggest change in the last sweep: ", el("b", {}, vi.delta === null ? "–" : vi.delta.toFixed(4))),
+    el("span", {}, " · value of start: ", el("b", {}, vi.V[idx(...GW.start)].toFixed(3))));
+}
+function solveAndRender() { const [V, k] = solveVI(gwSettings()); vi.V = V; vi.k = k; vi.delta = 0; renderVI(); resetQ(); }
+
+const q = { Q: new Float64Array(25 * 4), returns: [], path: null, rand: rng(7) };
+function resetQ() { q.Q = new Float64Array(25 * 4); q.returns = []; q.path = null; q.rand = rng(7); renderQ(); }
+function qEpisode() {
+  const st = gwSettings(), alpha = Number($("q-alpha").value), eps = Number($("q-eps").value), rand = q.rand;
+  let [r, c] = GW.start, total = 0; const path = [[r, c]];
+  const qmax = (r, c) => Math.max(...[0, 1, 2, 3].map(a => q.Q[idx(r, c) * 4 + a]));
+  for (let t = 0; t < 100; t++) {
+    let a;
+    if (rand() < eps) a = Math.floor(rand() * 4);
+    else { const vals = [0, 1, 2, 3].map(b => q.Q[idx(r, c) * 4 + b]), m = Math.max(...vals); const best = [0, 1, 2, 3].filter(b => vals[b] === m); a = best[Math.floor(rand() * best.length)]; }
+    let u = rand(), nr = r, nc = c;
+    for (const [p, rr, cc] of outcomes(r, c, a, st.slip)) { if (u < p) { nr = rr; nc = cc; break; } u -= p; }
+    const rew = gwReward(nr, nc, st.cost), done = isTerm(nr, nc);
+    const target = rew + (done ? 0 : st.gamma * qmax(nr, nc)), k = idx(r, c) * 4 + a;
+    q.Q[k] += alpha * (target - q.Q[k]);
+    total += rew; r = nr; c = nc; path.push([r, c]);
+    if (done) break;
+  }
+  q.returns.push(total); q.path = path;
+}
+function renderQ() {
+  if (!$("grid-q")) return;
+  const st = gwSettings();
+  $("q-alpha-val").textContent = Number($("q-alpha").value).toFixed(2); $("q-eps-val").textContent = Number($("q-eps").value).toFixed(2);
+  const V = new Float64Array(25), pol = [];
+  for (let i = 0; i < 25; i++) {
+    const r = Math.floor(i / 5), c = i % 5, vals = [0, 1, 2, 3].map(a => q.Q[i * 4 + a]);
+    V[i] = isWall(r, c) || isTerm(r, c) ? 0 : Math.max(...vals);
+    pol.push(isWall(r, c) || isTerm(r, c) || vals.every(v => v === 0) ? -1 : vals.indexOf(Math.max(...vals)));
+  }
+  drawGrid($("grid-q"), V, pol, q.path);  // no arrow where nothing has been learned yet
+  const n = q.returns.length;
+  if (n) {
+    const avg = q.returns.map((_, i) => { const w = q.returns.slice(Math.max(0, i - 9), i + 1); return [i + 1, w.reduce((a, b) => a + b, 0) / w.length]; });
+    $("q-chart").replaceChildren(lineChart([{ name: "return", color: "var(--c2)", points: avg }], { height: 150, yMax: 1, xLabel: "episodes", yLabel: "reward total (10-episode average)" }));
+  } else $("q-chart").replaceChildren();
+  const [Vstar] = solveVI(st);
+  let gap = 0, cnt = 0;
+  for (let i = 0; i < 25; i++) { const r = Math.floor(i / 5), c = i % 5; if (isWall(r, c) || isTerm(r, c)) continue; gap += Math.abs(V[i] - Vstar[i]); cnt++; }
+  $("q-stats").replaceChildren(el("span", {}, "episodes: ", el("b", {}, String(n))),
+    el("span", {}, " · last episode total: ", el("b", {}, n ? fmt(q.returns[n - 1]) : "–")),
+    el("span", {}, " · average gap to the true values from section 4: ", el("b", {}, (gap / cnt).toFixed(3))));
+}
+
+// ---------- 5. bandit ----------
+function gammaSample(k, rand) {  // Marsaglia–Tsang, valid for shape k >= 1
+  const d = k - 1 / 3, cc = 1 / Math.sqrt(9 * d);
+  for (;;) {
+    let x, v;
+    do { const u1 = rand() || 1e-12, u2 = rand(); x = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2); v = 1 + cc * x; } while (v <= 0);
+    v = v * v * v; const u = rand();
+    if (Math.log(u) < 0.5 * x * x + d - d * v + d * Math.log(v)) return d * v;
+  }
+}
+const betaSample = (a, b, rand) => { const x = gammaSample(a, rand), y = gammaSample(b, rand); return x / (x + y); };
+const bandit = { mu: [], seed: 3, pulls: [], wins: [], regret: 0, reveal: false };
+function newBandit() {
+  const rand = rng(bandit.seed++);
+  bandit.mu = Array.from({ length: 5 }, () => Math.round((0.15 + 0.7 * rand()) * 100) / 100);
+  bandit.pulls = [0, 0, 0, 0, 0]; bandit.wins = [0, 0, 0, 0, 0]; bandit.regret = 0; bandit.reveal = false;
+  renderBandit(); $("bandit-chart").replaceChildren(); $("bandit-legend").replaceChildren();
+}
+function pullArm(a) {
+  const win = Math.random() < bandit.mu[a] ? 1 : 0;
+  bandit.pulls[a]++; bandit.wins[a] += win; bandit.regret += Math.max(...bandit.mu) - bandit.mu[a];
+  renderBandit();
+}
+function renderBandit() {
+  $("bandit-arms").replaceChildren(...bandit.mu.map((m, a) => {
+    const b = el("button", {}, `Arm ${a + 1}`, el("br"), el("small", {}, bandit.pulls[a] ? `${bandit.wins[a]}/${bandit.pulls[a]} wins` : "not tried"));
+    if (bandit.reveal) b.append(el("br"), el("small", {}, `true ${Math.round(m * 100)}%`));
+    b.onclick = () => pullArm(a); return b;
+  }));
+  const T = bandit.pulls.reduce((a, b) => a + b, 0), W = bandit.wins.reduce((a, b) => a + b, 0);
+  $("bandit-you").replaceChildren(el("span", {}, "your pulls: ", el("b", {}, String(T))), el("span", {}, " · wins: ", el("b", {}, String(W))),
+    el("span", {}, " · regret so far: ", el("b", {}, bandit.regret.toFixed(2))));
+}
+function raceBandit() {
+  const T = 3000, runs = 50, every = 30, eps = Number($("eps").value), mu = bandit.mu, best = Math.max(...mu);
+  const strategies = {
+    [`ε-greedy (ε=${eps.toFixed(2)})`]: (n, w, t, rand) => {
+      if (rand() < eps || t < 5) return t < 5 ? t : Math.floor(rand() * 5);
+      const q = n.map((k, a) => k ? w[a] / k : 0); return q.indexOf(Math.max(...q));
+    },
+    "upper confidence bound (UCB1)": (n, w, t) => {
+      if (t < 5) return t;
+      const u = n.map((k, a) => w[a] / k + Math.sqrt(2 * Math.log(t) / k)); return u.indexOf(Math.max(...u));
+    },
+    "Thompson sampling": (n, w, t, rand) => {
+      const th = n.map((k, a) => betaSample(1 + w[a], 1 + k - w[a], rand)); return th.indexOf(Math.max(...th));
+    },
+  };
+  const colors = ["var(--c1)", "var(--c2)", "var(--c3)"], series = [];
+  Object.entries(strategies).forEach(([name, pick], si) => {
+    const acc = new Float64Array(T / every + 1), rand = rng(1000 + si);
+    for (let run = 0; run < runs; run++) {
+      const n = [0, 0, 0, 0, 0], w = [0, 0, 0, 0, 0]; let reg = 0;
+      for (let t = 0; t < T; t++) {
+        const a = pick(n, w, t, rand), win = rand() < mu[a] ? 1 : 0;
+        n[a]++; w[a] += win; reg += best - mu[a];
+        if ((t + 1) % every === 0) acc[(t + 1) / every] += reg / runs;
+      }
+    }
+    series.push({ name, color: colors[si], points: Array.from(acc, (v, i) => [i * every, v]) });
+  });
+  $("bandit-chart").replaceChildren(lineChart(series, { height: 190, xLabel: "pulls", yLabel: "average regret" }));
+  $("bandit-legend").replaceChildren(...series.map(sr => el("span", {}, el("i", { class: "swatch", style: `background:${sr.color}` }),
+    `${sr.name}: ${sr.points.at(-1)[1].toFixed(1)}`)));
+}
+// ---------- 7. REINFORCE ----------
+function normal(rand) { const u = rand() || 1e-12, v = rand(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+function softmax(th) { const m = Math.max(...th), e = th.map(x => Math.exp(x - m)), z = e.reduce((a, b) => a + b, 0); return e.map(x => x / z); }
+function sampleIdx(p, rand) { let u = rand(); for (let i = 0; i < p.length; i++) { if (u < p[i]) return i; u -= p[i]; } return p.length - 1; }
+function quantile(xs, q) { const a = [...xs].sort((x, y) => x - y); return a[Math.min(a.length - 1, Math.floor(q * a.length))]; }
+function runPG() {
+  const lr = Number($("pg-lr").value), off = Number($("pg-off").value), means = [1.0, 1.4, 2.0].map(m => m + off), runs = 40, T = 400, every = 5;
+  const variants = [["no baseline", false, "var(--c2)"], ["with baseline", true, "var(--c1)"]];
+  const series = variants.map(([name, useBaseline, color]) => {
+    const rand = rng(2024), traces = [];
+    for (let run = 0; run < runs; run++) {
+      const th = [0, 0, 0], tr = []; let b = null;
+      for (let t = 0; t <= T; t++) {
+        const p = softmax(th);
+        if (t % every === 0) tr.push(p[2]);
+        const a = sampleIdx(p, rand), r = means[a] + normal(rand);
+        if (b === null) b = r;
+        const adv = r - (useBaseline ? b : 0);
+        for (let k = 0; k < 3; k++) th[k] += lr * adv * ((k === a ? 1 : 0) - p[k]);
+        b += 0.05 * (r - b);
+      }
+      traces.push(tr);
+    }
+    const pts = [], band = [];
+    traces[0].forEach((_, i) => {
+      const col = traces.map(tr => tr[i]);
+      pts.push([i * every, col.reduce((x, y) => x + y, 0) / col.length]);
+      band.push([i * every, quantile(col, 0.1), quantile(col, 0.9)]);
+    });
+    const stuck = traces.filter(tr => tr.at(-1) < 0.5).length / runs;
+    return { name, color, points: pts, band, stuck };
+  });
+  $("pg-chart").replaceChildren(lineChart(series, { height: 190, yMin: 0, yMax: 1, xLabel: "steps", yLabel: "probability of the best action" }));
+  $("pg-legend").replaceChildren(...series.map(sr => el("span", {}, el("i", { class: "swatch", style: `background:${sr.color}` }),
+    `${sr.name}: ${(sr.points.at(-1)[1] * 100).toFixed(0)}% on average, ${(sr.stuck * 100).toFixed(0)}% of runs stuck on a worse action`)),
+    el("span", {}, "shaded: middle 80% of runs"));
+}
+
+// ---------- 8. actor–critic, GAE, PPO ----------
+const wordleRewards = e => turns(e).map(t => t.reward);
+function renderGAE() {
+  const lam = Number($("gae-lam").value), games = EPISODES.filter(e => e.env.includes("Wordle"));
+  $("gae-lam-val").textContent = lam.toFixed(2);
+  const e = games.find(g => g.id === $("gae-pick").value);
+  if (!e) { $("gae-chart").replaceChildren(el("p", { class: "note" }, "No Wordle games logged yet.")); $("gae-stats").replaceChildren(); return; }
+  // Turn-number critic: V(t) = average reward still to come at turn t, over logged games that reached turn t.
+  const V = t => { const alive = games.map(wordleRewards).filter(r => r.length > t);
+    return alive.reduce((acc, r) => acc + r.slice(t).reduce((a, b) => a + b, 0), 0) / alive.length; };
+  const r = wordleRewards(e), T = r.length;
+  const v = r.map((_, t) => V(t)), delta = r.map((x, t) => x + (t + 1 < T ? v[t + 1] : 0) - v[t]);
+  const adv = new Array(T); let acc = 0;
+  for (let t = T - 1; t >= 0; t--) { acc = delta[t] + lam * acc; adv[t] = acc; }
+  $("gae-chart").replaceChildren(barChart(adv.map((a, t) => ({ label: `turn ${t + 1}`, value: a,
+    color: a >= 0 ? "var(--pos)" : "var(--neg)",
+    title: `turn ${t + 1}: reward ${fmt(r[t])}, critic V ${fmt(v[t])}, δ ${fmt(delta[t])}, advantage ${fmt(a)}` })), { height: 140 }));
+  $("gae-stats").replaceChildren(el("span", {}, "per turn — reward: ", el("b", {}, r.map(x => fmt(x)).join(" · "))),
+    el("span", {}, " critic V: ", el("b", {}, v.map(x => fmt(x)).join(" · "))),
+    el("span", {}, " δ: ", el("b", {}, delta.map(x => fmt(x)).join(" · "))));
+}
+function renderClip() {
+  const eps = Number($("clip-eps").value), xs = Array.from({ length: 81 }, (_, i) => i * 0.025);
+  $("clip-eps-val").textContent = eps.toFixed(2);
+  const clipped = A => xs.map(x => [x, Math.min(x * A, Math.min(Math.max(x, 1 - eps), 1 + eps) * A)]);
+  const ser = [
+    { color: "var(--c1)", dash: "5 4", points: xs.map(x => [x, x]) },
+    { color: "var(--c2)", dash: "5 4", points: xs.map(x => [x, -x]) },
+    { color: "var(--c1)", points: clipped(1) },
+    { color: "var(--c2)", points: clipped(-1) },
+  ];
+  $("clip-chart").replaceChildren(lineChart(ser, { height: 190, yMin: -2, yMax: 2, xLabel: "ratio ρ", yLabel: "objective", vlines: [1 - eps, 1 + eps] }));
+}
+function runPPO() {
+  const K = Number($("ppo-k").value), eps = Number($("ppo-eps").value), lr = 0.5, N = 8, B = 60, runs = 100;
+  const means = [1.0, 1.4, 2.0];
+  const variants = [["one step per batch (REINFORCE)", 1, false, "var(--mid)"], [`${K} steps per batch, unclipped`, K, false, "var(--c2)"],
+    [`${K} steps per batch, clipped (PPO)`, K, true, "var(--c1)"]];
+  const series = variants.map(([name, epochs, clip, color]) => {
+    const rand = rng(5), traces = []; let kl = 0;
+    for (let run = 0; run < runs; run++) {
+      const th = [0, 0, 0], tr = [softmax(th)[2]];
+      for (let b = 0; b < B; b++) {
+        const p0 = softmax(th), acts = [], rews = [];
+        for (let i = 0; i < N; i++) { const a = sampleIdx(p0, rand); acts.push(a); rews.push(means[a] + normal(rand)); }
+        const m = rews.reduce((x, y) => x + y, 0) / N, A = rews.map(x => x - m);
+        for (let ep = 0; ep < epochs; ep++) {
+          const p = softmax(th), g = [0, 0, 0];
+          acts.forEach((a, i) => {
+            const rho = p[a] / p0[a];
+            if (clip && ((A[i] > 0 && rho > 1 + eps) || (A[i] < 0 && rho < 1 - eps))) return;  // flat part: no gradient
+            for (let k = 0; k < 3; k++) g[k] += rho * A[i] * ((k === a ? 1 : 0) - p[k]) / N;
+          });
+          for (let k = 0; k < 3; k++) th[k] += lr * g[k];
+        }
+        const p1 = softmax(th);
+        kl += p0.reduce((acc, q, k) => acc + q * Math.log(q / p1[k]), 0);
+        tr.push(p1[2]);
+      }
+      traces.push(tr);
+    }
+    const pts = traces[0].map((_, i) => [i, traces.reduce((acc, tr) => acc + tr[i], 0) / runs]);
+    return { name, color, points: pts, stuck: traces.filter(tr => tr.at(-1) < 0.5).length / runs, kl: kl / (runs * B) };
+  });
+  $("ppo-chart").replaceChildren(lineChart(series, { height: 190, yMin: 0, yMax: 1, xLabel: "batches", yLabel: "P(best action)" }));
+  $("ppo-legend").replaceChildren(...series.map(sr => el("span", {}, el("i", { class: "swatch", style: `background:${sr.color}` }),
+    `${sr.name}: ${(sr.points.at(-1)[1] * 100).toFixed(0)}% at the end, ${(sr.stuck * 100).toFixed(0)}% of runs stuck, KL per batch ${sr.kl.toFixed(3)}`)));
+}
+
+// ---------- 9. GRPO ----------
+const KINDS = [
+  { name: "correct, concise", reward: 1, color: "var(--good)" },
+  { name: "correct after long reasoning", reward: 1, color: "var(--good)" },
+  { name: "wrong answer", reward: 0, color: "var(--mid)" },
+  { name: "ran out of tokens, no answer", reward: -0.1, color: "var(--bad)" },
+];
+const grpo = { th: [], group: [], adv: [], hist: [], zero: 0, steps: 0, rand: rng(11) };
+function resetGRPO() {
+  Object.assign(grpo, { th: [0.1, 0.2, 0.4, 0.3].map(Math.log), group: [], adv: [], hist: [], zero: 0, steps: 0, rand: rng(11) });
+  grpo.hist.push([0, ...softmax(grpo.th)]);
+  renderGRPO();
+}
+function sampleGroup() {
+  const G = Number($("grpo-g").value), p = softmax(grpo.th);
+  grpo.group = Array.from({ length: G }, () => sampleIdx(p, grpo.rand));
+  const r = grpo.group.map(k => KINDS[k].reward), m = r.reduce((a, b) => a + b, 0) / G;
+  const sd = Math.sqrt(r.reduce((a, x) => a + (x - m) ** 2, 0) / G);
+  grpo.adv = r.map(x => sd > 1e-9 ? (x - m) / sd : 0);
+  grpo.stats = { m, sd };
+}
+function applyGRPO() {
+  if (!grpo.group.length) return;
+  const p = softmax(grpo.th), G = grpo.group.length, lr = 0.5;
+  if (grpo.adv.every(a => a === 0)) grpo.zero++;
+  for (let k = 0; k < 4; k++)
+    grpo.th[k] += lr / G * grpo.group.reduce((acc, kind, i) => acc + grpo.adv[i] * ((kind === k ? 1 : 0) - p[k]), 0);
+  grpo.steps++; grpo.hist.push([grpo.steps, ...softmax(grpo.th)]);
+}
+function renderGRPO() {
+  $("grpo-g-val").textContent = $("grpo-g").value;
+  const p = softmax(grpo.th);
+  $("grpo-policy").replaceChildren(el("h3", { style: "margin-top:4px" }, "The model's current reply probabilities"),
+    ...KINDS.map((k, i) => el("div", { class: "stat", style: "display:flex;gap:8px;align-items:center;margin:3px 0" },
+      el("span", { style: "flex:0 0 46%" }, k.name, " ", rewardPill(k.reward)),
+      el("span", { style: `flex:0 0 ${Math.max(1, p[i] * 40)}%;height:12px;border-radius:3px;background:${k.color}` }),
+      el("b", {}, `${(p[i] * 100).toFixed(0)}%`))));
+  if (grpo.group.length) {
+    const { m, sd } = grpo.stats;
+    $("grpo-group").replaceChildren(el("h3", {}, `Sampled group: mean reward ${fmt(m)}, std ${sd.toFixed(2)}`),
+      barChart(grpo.group.map((k, i) => ({ label: i + 1, value: grpo.adv[i], color: grpo.adv[i] >= 0 ? "var(--pos)" : "var(--neg)",
+        title: `answer ${i + 1}: ${KINDS[k].name}, reward ${fmt(KINDS[k].reward)}, advantage ${fmt(grpo.adv[i])}` })), { height: 120 }),
+      el("div", { class: "note" }, grpo.adv.every(a => a === 0)
+        ? "Every answer scored the same, so every advantage is 0: this group carries no learning signal."
+        : "Bars are advantages A_i: blue answers get pushed up, red ones down. " +
+          grpo.group.map((k, i) => `${i + 1}: ${KINDS[k].name}`).join(" · ")));
+  } else $("grpo-group").replaceChildren();
+  if (grpo.hist.length > 1) {
+    const ser = [
+      { name: "correct (either kind)", color: "var(--c3)", points: grpo.hist.map(h => [h[0], h[1] + h[2]]) },
+      { name: "ran out of tokens", color: "var(--c2)", points: grpo.hist.map(h => [h[0], h[4]]) },
+      { name: "correct, concise", color: "var(--c1)", points: grpo.hist.map(h => [h[0], h[1]]) },
+    ];
+    $("grpo-chart").replaceChildren(lineChart(ser, { height: 170, yMin: 0, yMax: 1, xLabel: "updates", yLabel: "probability" }));
+    $("grpo-legend").replaceChildren(...ser.map(sr => el("span", {}, el("i", { class: "swatch", style: `background:${sr.color}` }), sr.name)));
+  } else { $("grpo-chart").replaceChildren(); $("grpo-legend").replaceChildren(); }
+  $("grpo-stats").replaceChildren(el("span", {}, "updates: ", el("b", {}, String(grpo.steps))),
+    el("span", {}, " · groups with no signal (all scores equal): ", el("b", {}, String(grpo.zero))));
+  $("grpo-update").disabled = !grpo.group.length;
+}
+
+// ---------- 10. state hand-offs ----------
+function wordleSummary(feedbacks) {  // compact belief from Wordle feedback: known positions, misplaced, excluded
+  const L = feedbacks[0]?.guess.length || 3, pos = Array(L).fill("_"), has = new Set(), out = new Set();
+  for (const { guess, marks } of feedbacks) marks.forEach((m, i) => {
+    const ch = guess[i];
+    if (m === "G") pos[i] = ch; else if (m === "Y") has.add(`${ch} (not position ${i + 1})`); else out.add(ch);
+  });
+  return `Known: ${pos.join(" ")}. In the word elsewhere: ${[...has].join(", ") || "none"}. Not in the word: ${[...out].filter(c => !pos.includes(c)).join(", ") || "none"}.`;
+}
+function handoffs(e) {  // per turn: the text each hand-off would give the agent before it acts
+  const msgs = e.messages, rules = msgs[0].content, isGTN = e.env.includes("GuessTheNumber"), rows = [];
+  const label = m => m.role === "agent" ? "YOU" : "ENVIRONMENT";
+  let lo = 1, hi = 20; const fbs = [];
+  for (let t = 0; 2 * t < msgs.length - 1; t++) {
+    const seen = msgs.slice(0, 2 * t + 1);
+    if (t > 0) {  // fold the latest hint into the belief
+      const fb = seen[2 * t].content;
+      const m = /guessed (\d+), and the target number is (higher|lower)/.exec(fb);
+      if (m) { const g = Number(m[1]); if (m[2] === "higher") lo = Math.max(lo, g + 1); else hi = Math.min(hi, g - 1); }
+      const w = /you guessed (\w+)\nFeedback:\n\w+\n\[(.*)\]/.exec(fb);
+      if (w) fbs.push({ guess: w[1], marks: w[2].split(",").map(x => x.trim().replace(/'/g, "")) });
+    }
+    let lastLo = 1, lastHi = 20;
+    const lm = t > 0 && /guessed (\d+), and the target number is (higher|lower)/.exec(seen[2 * t].content);
+    if (lm) { const g = Number(lm[1]); if (lm[2] === "higher") lastLo = g + 1; else lastHi = g - 1; }
+    const full = seen.map(m => `[${label(m)}]\n${m.content}`).join("\n\n");
+    const noThink = seen.map(m => `[${label(m)}]\n${stripThinking(m.content)}`).join("\n\n");
+    const last = t === 0 ? rules : `${rules}\n\n${seen[2 * t].content}`;
+    const belief = t === 0 ? rules : `${rules}\n\n` + (isGTN ? `The number is between ${lo} and ${hi}.` : fbs.length ? wordleSummary(fbs) : "");
+    rows.push({ t: t + 1, full: full.length, noThink: noThink.length, last: last.length, belief: belief.length,
+      bitsFull: Math.log2(20 / (hi - lo + 1)), bitsLast: Math.log2(20 / (lastHi - lastLo + 1)) });
+  }
+  return rows;
+}
+function renderTransfer() {
+  const e = EPISODES.find(x => x.id === $("tr-pick").value);
+  if (!e) { $("tr-size").replaceChildren(el("p", { class: "note" }, "No multi-turn episodes logged yet.")); $("tr-bits-wrap").style.display = "none"; return; }
+  const rows = handoffs(e), isGTN = e.env.includes("GuessTheNumber");
+  const ser = [
+    { name: "full history with thinking", color: "var(--c2)", points: rows.map(r => [r.t, r.full]) },
+    { name: "history without thinking (now)", color: "var(--c1)", points: rows.map(r => [r.t, r.noThink]) },
+    { name: "compact belief", color: "var(--c3)", points: rows.map(r => [r.t, r.belief]) },
+    { name: "latest feedback only", color: "var(--mid)", points: rows.map(r => [r.t, r.last]) },
+  ];
+  $("tr-size").replaceChildren(el("h3", { style: "margin-top:4px" }, "Prompt size each turn (characters; about 4 per token)"),
+    lineChart(ser, { height: 170, xLabel: "turns" }));
+  $("tr-size-legend").replaceChildren(...ser.map(sr => el("span", {}, el("i", { class: "swatch", style: `background:${sr.color}` }), sr.name)));
+  $("tr-bits-wrap").style.display = isGTN ? "" : "none";
+  if (isGTN) {
+    const bs = [
+      { name: "full, without thinking, or belief", color: "var(--c1)", points: rows.map(r => [r.t, r.bitsFull]) },
+      { name: "latest feedback only", color: "var(--mid)", points: rows.map(r => [r.t, r.bitsLast]) },
+    ];
+    $("tr-bits").replaceChildren(lineChart(bs, { height: 150, yMin: 0, yMax: Math.log2(20), xLabel: "turns", yLabel: "bits known (4.32 = solved)" }));
+    $("tr-bits-legend").replaceChildren(...bs.map(sr => el("span", {}, el("i", { class: "swatch", style: `background:${sr.color}` }), sr.name)));
+  }
+  const L = rows.at(-1);
+  $("tr-note").textContent = `Before its last move the agent was handed ${L.noThink.toLocaleString()} characters (${L.full.toLocaleString()} with thinking kept). ` +
+    `A compact belief would be ${L.belief.toLocaleString()} characters` + (isGTN ? `, with exactly the same information about the secret number.` : ` (letters known, misplaced, and ruled out).`);
+}
+init();
+</script>
+</body>
+</html>

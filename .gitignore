@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+runs/
+*.egg-info/
+latent/results/**/*.texts.jsonl
+latent/results/**/cb-bank/
+venv/
+node_modules/
+build/
+dist/

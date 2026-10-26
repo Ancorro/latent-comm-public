@@ -1,0 +1,112 @@
+{
+ "model": "Qwen/Qwen3-8B",
+ "evidence_chars": 0,
+ "items": [
+  {
+   "qid": "95de313fdfef9d01",
+   "workers": [
+    {
+     "prompt_equal": true,
+     "T": 45133,
+     "question_found": true,
+     "latent_max_abs_diff": 0.019775390625,
+     "cache_keys_max_abs_diff": 8.0,
+     "snap_rel_diff": 0.0008515543304383755,
+     "support_rel_diff": 0.008904127404093742,
+     "keep4_port_equal": true,
+     "keep4_overlap": 0.978730946472882,
+     "keep16_port_equal": true,
+     "keep16_overlap": 0.9659695143566112
+    },
+    {
+     "prompt_equal": true,
+     "T": 47254,
+     "question_found": true,
+     "latent_max_abs_diff": 0.013671875,
+     "cache_keys_max_abs_diff": 3.0,
+     "snap_rel_diff": 0.0003499840386211872,
+     "support_rel_diff": 0.010186547413468361,
+     "keep4_port_equal": true,
+     "keep4_overlap": 0.9796851193499239,
+     "keep16_port_equal": true,
+     "keep16_overlap": 0.9783344617467841
+    },
+    {
+     "prompt_equal": true,
+     "T": 47583,
+     "question_found": true,
+     "latent_max_abs_diff": 0.010009765625,
+     "cache_keys_max_abs_diff": 3.0,
+     "snap_rel_diff": 0.0010442892089486122,
+     "support_rel_diff": 0.007631711661815643,
+     "keep4_port_equal": true,
+     "keep4_overlap": 0.9798251513113652,
+     "keep16_port_equal": true,
+     "keep16_overlap": 0.9680564895763282
+    }
+   ],
+   "manager_prompt_equal": true,
+   "question_rows_equal": true,
+   "keeps4_equal": false,
+   "receiver_positions": 35047,
+   "receiver_logits": {
+    "kl": -9.642557330380441e-08,
+    "argmax_agree": true,
+    "max_abs": 0.9296875
+   }
+  },
+  {
+   "qid": "c58ac65553f24640",
+   "workers": [
+    {
+     "prompt_equal": false,
+     "T": 50112,
+     "question_found": true,
+     "latent_max_abs_diff": 0.015625,
+     "cache_keys_max_abs_diff": 4.0,
+     "snap_rel_diff": 0.0004427343956194818,
+     "support_rel_diff": 0.01198268961161375,
+     "keep4_port_equal": true,
+     "keep4_overlap": 0.9846743295019157,
+     "keep16_port_equal": true,
+     "keep16_overlap": 0.9731800766283525
+    },
+    {
+     "prompt_equal": true,
+     "T": 50133,
+     "question_found": true,
+     "latent_max_abs_diff": 0.0166015625,
+     "cache_keys_max_abs_diff": 5.5,
+     "snap_rel_diff": 0.00059216731460765,
+     "support_rel_diff": 0.007388551253825426,
+     "keep4_port_equal": true,
+     "keep4_overlap": 0.9873145045476305,
+     "keep16_port_equal": true,
+     "keep16_overlap": 0.9824505424377792
+    },
+    {
+     "prompt_equal": true,
+     "T": 50126,
+     "question_found": true,
+     "latent_max_abs_diff": 0.015625,
+     "cache_keys_max_abs_diff": 4.0,
+     "snap_rel_diff": 0.00021061823645140976,
+     "support_rel_diff": 0.014167213812470436,
+     "keep4_port_equal": true,
+     "keep4_overlap": 0.97446536865624,
+     "keep16_port_equal": true,
+     "keep16_overlap": 0.969358442387488
+    }
+   ],
+   "manager_prompt_equal": true,
+   "question_rows_equal": true,
+   "keeps4_equal": false,
+   "receiver_positions": 37649,
+   "receiver_logits": {
+    "kl": -2.767597528929855e-08,
+    "argmax_agree": true,
+    "max_abs": 1.046875
+   }
+  }
+ ]
+}

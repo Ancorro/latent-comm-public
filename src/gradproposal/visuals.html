@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reinforcement Learning Visuals</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '\\(', right: '\\)', display: false}]})"></script>
+<style>
+  :root {
+    --bg: #f6f6f4; --card: #ffffff; --fg: #1d1d1b; --muted: #6b6b66; --line: #e2e1dc;
+    --code: #f1f0ec; --accent: #3b5bdb; --on-accent: #ffffff;
+    --pos: #2f6fdf; --neg: #d64545; --wall: #8a8984; --agent: #e0662a; --faint: #ecebe6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141413; --card: #1e1e1c; --fg: #ecebe6; --muted: #9a9993; --line: #2f2f2c;
+      --code: #262624; --accent: #8ca2ff; --on-accent: #10131f;
+      --pos: #6b9cff; --neg: #ff7b7b; --wall: #55554f; --agent: #ff8f5a; --faint: #2a2a27;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141413; --card: #1e1e1c; --fg: #ecebe6; --muted: #9a9993; --line: #2f2f2c;
+    --code: #262624; --accent: #8ca2ff; --on-accent: #10131f;
+    --pos: #6b9cff; --neg: #ff7b7b; --wall: #55554f; --agent: #ff8f5a; --faint: #2a2a27;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  nav { position: sticky; top: 0; z-index: 2; background: var(--bg); border-bottom: 1px solid var(--line);
+    display: flex; gap: 16px; padding: 10px 16px; font-size: 14px; }
+  nav a { color: var(--muted); text-decoration: none; }
+  nav a.here { color: var(--fg); font-weight: 600; }
+  main { max-width: 760px; margin: 0 auto; padding: 8px 16px 64px; }
+  h1 { font-size: 26px; line-height: 1.25; margin: 20px 0 8px; }
+  h2 { font-size: 21px; line-height: 1.3; margin: 0 0 8px; }
+  h3 { font-size: 16px; margin: 0 0 4px; }
+  section { border-top: 1px solid var(--line); padding: 28px 0 8px; scroll-margin-top: 44px; }
+  .num { color: var(--muted); font-weight: 500; margin-right: 6px; }
+  .lede { color: var(--muted); }
+  .takeaway { border-left: 3px solid var(--accent); background: var(--card); padding: 10px 12px;
+    border-radius: 0 8px 8px 0; margin: 12px 0; }
+  .widget { background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 12px; margin: 14px 0; }
+  .widget-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+    color: var(--muted); margin-bottom: 8px; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+  .row label { font-size: 14px; color: var(--muted); }
+  button { font: inherit; font-size: 14px; padding: 6px 12px; border-radius: 8px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--bg); color: var(--fg); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  .slider { flex: 1 1 200px; }
+  .slider span { font-variant-numeric: tabular-nums; color: var(--fg); font-weight: 600; }
+  code { font: 13px/1.45 ui-monospace, Consolas, monospace; background: var(--code); padding: 1px 4px; border-radius: 4px; }
+  .stat { font-size: 14px; color: var(--muted); }
+  .stat b { color: var(--fg); font-variant-numeric: tabular-nums; }
+  canvas { display: block; width: 100%; height: auto; border-radius: 8px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; color: var(--muted); margin-top: 6px; }
+  .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+  .chart-label { font-size: 12px; color: var(--muted); margin: 10px 0 2px; }
+  .videos { display: grid; gap: 16px; }
+  @media (min-width: 700px) { .videos { grid-template-columns: 1fr 1fr; } }
+  .video { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .video iframe { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; background: #000; }
+  .video .cap { padding: 10px 12px 12px; }
+  .video p { margin: 0; font-size: 14px; color: var(--muted); }
+  .video .tag { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .05em; color: var(--accent); margin-bottom: 2px; }
+  .note { font-size: 14px; color: var(--muted); }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<nav><a href="./">Agent I/O</a><a href="lesson">Lesson</a><a href="visuals" class="here">Visuals</a></nav>
+<main>
+
+<h1>Reinforcement learning you can watch</h1>
+<p class="lede">Two small agents learn right here in your browser, followed by videos of RL agents playing real video games. The <a href="lesson">lesson</a> covers the theory; this page shows it happening.</p>
+
+<section id="maze">
+<h2><span class="num">1</span>Q-learning fills in a maze</h2>
+<div class="takeaway">The agent starts knowing nothing. Each step updates one estimate, \(Q(s,a)\), and good values spread backward from the goal one visit at a time.</div>
+<div class="widget">
+  <div class="widget-title">Live Q-learning agent</div>
+  <canvas id="maze-canvas" width="640" height="480" aria-label="Gridworld maze with value heatmap"></canvas>
+  <div class="legend">
+    <span><span class="swatch" style="background:var(--pos)"></span>high value</span>
+    <span><span class="swatch" style="background:var(--neg)"></span>low value</span>
+    <span><span class="swatch" style="background:var(--agent)"></span>agent</span>
+    <span>arrows: current greedy action</span>
+  </div>
+  <div class="row">
+    <button id="maze-run" class="primary">Run</button>
+    <button id="maze-reset">Reset</button>
+    <span class="stat">episode <b id="maze-ep">0</b> · last length <b id="maze-len">–</b></span>
+  </div>
+  <div class="row">
+    <label class="slider">speed <span id="maze-speed-v"></span><input id="maze-speed" type="range" min="0" max="4" value="1"></label>
+    <label class="slider">exploration ε <span id="maze-eps-v"></span><input id="maze-eps" type="range" min="0" max="50" value="20"></label>
+  </div>
+  <div class="chart-label">Steps to finish each episode over the last 400 episodes (lower is better; faint line is raw, bold is a 20-episode average)</div>
+  <canvas id="maze-chart" width="640" height="140" aria-label="Episode length chart"></canvas>
+</div>
+<p class="note">Goal (G) pays +1, pits (P) pay −1, and each step costs 0.01, so shorter paths win. The update is \(Q(s,a) \leftarrow Q(s,a) + \alpha\,[r + \gamma \max_{a'} Q(s',a') - Q(s,a)]\) with \(\alpha = 0.5\), \(\gamma = 0.95\). Set ε to 0 after it learns and watch it walk the shortest path; set it to 0 from the start and it can get stuck circling.</p>
+</section>
+
+<section id="cartpole">
+<h2><span class="num">2</span>A policy gradient learns to balance a pole</h2>
+<div class="takeaway">No value table this time: a five-number linear policy pushes the cart left or right, and REINFORCE nudges those numbers toward actions that came before long runs.</div>
+<div class="widget">
+  <div class="widget-title">CartPole, trained by REINFORCE</div>
+  <canvas id="cp-canvas" width="640" height="240" aria-label="Cart and pole animation"></canvas>
+  <div class="row">
+    <button id="cp-train" class="primary">Train</button>
+    <button id="cp-reset">Reset</button>
+    <span class="stat">trained episodes <b id="cp-ep">0</b> · watching run <b id="cp-t">0</b> steps</span>
+  </div>
+  <div class="chart-label">Training episode length over the last 400 episodes (500 is the cap, meaning it never fell)</div>
+  <canvas id="cp-chart" width="640" height="140" aria-label="CartPole episode length chart"></canvas>
+</div>
+<p class="note">Training plays episodes fast in the background with a stochastic policy, \(\pi(\text{right}\mid s) = \sigma(w^\top s)\). The animation shows the current policy acting greedily, restarting whenever the pole tips past 12° or the cart leaves the track. It usually reaches 500 steps within a few hundred episodes, and sometimes forgets for a while afterward, which is the instability PPO was built to tame.</p>
+</section>
+
+<section id="games">
+<h2><span class="num">3</span>RL agents in video games</h2>
+<div class="videos">
+  <div class="video">
+    <iframe src="https://www.youtube-nocookie.com/embed/TmPfTpjtdgg" title="DQN Breakout" loading="lazy" allow="encrypted-media; picture-in-picture; fullscreen"></iframe>
+    <div class="cap"><span class="tag">Atari · DQN · 2015</span><h3>DQN learns Breakout from pixels</h3>
+    <p>DeepMind's Deep Q-Network sees only the screen and the score. After enough play it discovers tunneling up the side so the ball bounces behind the wall.</p></div>
+  </div>
+  <div class="video">
+    <iframe src="https://www.youtube-nocookie.com/embed/tlOIHko8ySg" title="CoastRunners 7" loading="lazy" allow="encrypted-media; picture-in-picture; fullscreen"></iframe>
+    <div class="cap"><span class="tag">Reward hacking · 2016</span><h3>The boat that never finishes the race</h3>
+    <p>OpenAI rewarded points instead of finishing. The agent found a lagoon where targets respawn and circles forever, on fire, outscoring humans without ever completing a lap.</p></div>
+  </div>
+  <div class="video">
+    <iframe src="https://www.youtube-nocookie.com/embed/kopoLzvh5jY" title="Multi-Agent Hide and Seek" loading="lazy" allow="encrypted-media; picture-in-picture; fullscreen"></iframe>
+    <div class="cap"><span class="tag">Multi-agent · PPO · 2019</span><h3>Hide and seek invents tool use</h3>
+    <p>Two teams trained against each other with only a win or lose signal. Strategies escalate: forts, ramps, ramp locking, then box surfing that exploits the physics.</p></div>
+  </div>
+  <div class="video">
+    <iframe src="https://www.youtube-nocookie.com/embed/eHipy_j29Xw" title="OpenAI Five" loading="lazy" allow="encrypted-media; picture-in-picture; fullscreen"></iframe>
+    <div class="cap"><span class="tag">Dota 2 · PPO at scale · 2018</span><h3>OpenAI Five</h3>
+    <p>Five networks trained with PPO on about 180 years of self-play per day. In 2019 they beat the reigning world champions, OG.</p></div>
+  </div>
+  <div class="video">
+    <iframe src="https://www.youtube-nocookie.com/embed/DcYLT37ImBY" title="Training AI to Play Pokemon with Reinforcement Learning" loading="lazy" allow="encrypted-media; picture-in-picture; fullscreen"></iframe>
+    <div class="cap"><span class="tag">Pokémon Red · PPO · 2023</span><h3>Teaching an agent to explore Kanto</h3>
+    <p>Peter Whidden shows how much reward design matters when the game gives no score: novelty bonuses, level-ups, and all the ways the agent games each one.</p></div>
+  </div>
+  <div class="video">
+    <iframe src="https://www.youtube-nocookie.com/embed/Dw3BZ6O_8LY" title="Training an unbeatable AI in Trackmania" loading="lazy" allow="encrypted-media; picture-in-picture; fullscreen"></iframe>
+    <div class="cap"><span class="tag">Trackmania · 2022</span><h3>An unbeatable Trackmania driver</h3>
+    <p>Yosh trains a racing agent from scratch. It's a good look at how observations, rewards and training time shape what the car learns.</p></div>
+  </div>
+</div>
+<p class="note">More: <a href="https://www.youtube.com/watch?v=cUTMhmVh1qs">AlphaStar in StarCraft II</a> and <a href="https://www.youtube.com/watch?v=WXuK6gekU1Y">AlphaGo – The Movie</a> (full documentary).</p>
+</section>
+
+</main>
+<script>
+// Theme colors are read from CSS variables so canvases follow light and dark mode.
+let C = {};
+function readColors() {
+  const cs = getComputedStyle(document.documentElement);
+  for (const k of ["bg", "card", "fg", "muted", "line", "pos", "neg", "wall", "agent", "faint", "accent"])
+    C[k] = cs.getPropertyValue("--" + k).trim();
+}
+readColors();
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { readColors(); drawMaze(); drawChart(mazeChart, mazeLens, null); drawChart(cpChart, cpLens, 500); });
+
+function hexRgb(h) { const n = parseInt(h.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; }
+function mix(a, b, t) { const x = hexRgb(a), y = hexRgb(b); return `rgb(${x.map((v, i) => Math.round(v + (y[i] - v) * t)).join(",")})`; }
+
+function drawChart(canvas, data, cap) {
+  const g = canvas.getContext("2d"), W = canvas.width, H = canvas.height, pad = 6;
+  g.clearRect(0, 0, W, H);
+  g.fillStyle = C.faint; g.fillRect(0, 0, W, H);
+  if (!data.length) return;
+  const off = Math.max(0, data.length - 400); // only the most recent 400 episodes
+  data = data.slice(off);
+  const max = cap || data.reduce((a, b) => Math.max(a, b), 10), n = Math.max(data.length, 50);
+  const X = i => pad + (W - 2 * pad) * i / (n - 1), Y = v => H - pad - (H - 2 * pad) * Math.min(v, max) / max;
+  const line = (arr, color, width) => {
+    g.strokeStyle = color; g.lineWidth = width; g.beginPath();
+    arr.forEach((v, i) => i ? g.lineTo(X(i), Y(v)) : g.moveTo(X(i), Y(v))); g.stroke();
+  };
+  line(data, mix(C.faint, C.accent, 0.35), 1);
+  let sum = 0;
+  const avg = data.map((v, i) => { sum += v - (i >= 20 ? data[i - 20] : 0); return sum / Math.min(i + 1, 20); });
+  line(avg, C.accent, 2.5);
+  g.fillStyle = C.muted; g.font = "20px system-ui"; g.fillText(Math.round(max), pad + 4, 22);
+}
+
+// ---------- 1. Q-learning gridworld ----------
+const MAP = [
+  "S...#..G",
+  ".##.#.#.",
+  "..#...#.",
+  "..###...",
+  ".P....#P",
+  "...#....",
+];
+const ROWS = MAP.length, COLS = MAP[0].length, MOVES = [[0, -1], [1, 0], [0, 1], [-1, 0]]; // up right down left
+const mazeCanvas = document.getElementById("maze-canvas"), mazeChart = document.getElementById("maze-chart");
+const cell = (x, y) => MAP[y][x];
+let Q, pos, epLen, mazeLens, episodes, running = false;
+const start = (() => { for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) if (cell(x, y) === "S") return [x, y]; })();
+
+function mazeReset() {
+  Q = Array.from({ length: ROWS * COLS }, () => [0, 0, 0, 0]);
+  pos = start.slice(); epLen = 0; mazeLens = []; episodes = 0;
+  document.getElementById("maze-ep").textContent = 0; document.getElementById("maze-len").textContent = "–";
+  drawMaze(); drawChart(mazeChart, mazeLens, null);
+}
+const argmax = a => { let b = 0; for (let i = 1; i < a.length; i++) if (a[i] > a[b] || (a[i] === a[b] && Math.random() < 0.5)) b = i; return b; };
+const eps = () => document.getElementById("maze-eps").value / 100;
+
+function mazeStep() {
+  const s = pos[1] * COLS + pos[0];
+  const a = Math.random() < eps() ? Math.floor(Math.random() * 4) : argmax(Q[s]);
+  let nx = pos[0] + MOVES[a][0], ny = pos[1] + MOVES[a][1];
+  if (nx < 0 || ny < 0 || nx >= COLS || ny >= ROWS || cell(nx, ny) === "#") { nx = pos[0]; ny = pos[1]; }
+  const c = cell(nx, ny), done = c === "G" || c === "P" || epLen >= 300;
+  const r = c === "G" ? 1 : c === "P" ? -1 : -0.01;
+  const s2 = ny * COLS + nx, target = r + (c === "G" || c === "P" ? 0 : 0.95 * Math.max(...Q[s2]));
+  Q[s][a] += 0.5 * (target - Q[s][a]);
+  pos = [nx, ny]; epLen++;
+  if (done) {
+    mazeLens.push(epLen); if (mazeLens.length > 400) mazeLens.shift(); episodes++;
+    document.getElementById("maze-ep").textContent = episodes; document.getElementById("maze-len").textContent = epLen;
+    pos = start.slice(); epLen = 0;
+    return true;
+  }
+  return false;
+}
+
+function drawMaze() {
+  const g = mazeCanvas.getContext("2d"), W = mazeCanvas.width, cs = W / COLS;
+  g.clearRect(0, 0, W, mazeCanvas.height);
+  for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
+    const c = cell(x, y), px = x * cs, py = y * cs;
+    let fill;
+    if (c === "#") fill = C.wall;
+    else if (c === "G") fill = C.pos;
+    else if (c === "P") fill = C.neg;
+    else { const v = Math.max(...Q[y * COLS + x]); fill = v >= 0 ? mix(C.card, C.pos, Math.min(v, 1) * 0.85) : mix(C.card, C.neg, Math.min(-v, 1) * 0.85); }
+    g.fillStyle = fill; g.fillRect(px + 1, py + 1, cs - 2, cs - 2);
+    if (c === "G" || c === "P" || c === "S") {
+      g.fillStyle = c === "S" ? C.muted : C.bg; g.font = "bold 26px system-ui"; g.textAlign = "center"; g.textBaseline = "middle";
+      g.fillText(c, px + cs / 2, py + cs / 2);
+    }
+    const q = Q[y * COLS + x];
+    if (c !== "#" && c !== "G" && c !== "P" && q.some(v => v !== 0)) {
+      const a = q.indexOf(Math.max(...q)), [dx, dy] = MOVES[a], cx = px + cs / 2, cy = py + cs / 2, L = cs * 0.28;
+      g.strokeStyle = C.fg; g.fillStyle = C.fg; g.globalAlpha = 0.55; g.lineWidth = 3;
+      g.beginPath(); g.moveTo(cx - dx * L, cy - dy * L); g.lineTo(cx + dx * L, cy + dy * L); g.stroke();
+      g.beginPath(); g.moveTo(cx + dx * (L + 6), cy + dy * (L + 6));
+      g.lineTo(cx + dx * (L - 6) - dy * 8, cy + dy * (L - 6) + dx * 8); g.lineTo(cx + dx * (L - 6) + dy * 8, cy + dy * (L - 6) - dx * 8); g.fill();
+      g.globalAlpha = 1;
+    }
+  }
+  g.fillStyle = C.agent; g.beginPath(); g.arc(pos[0] * cs + cs / 2, pos[1] * cs + cs / 2, cs * 0.2, 0, 7); g.fill();
+}
+
+const SPEEDS = [1, 4, 30, 300, 3000], SPEED_NAMES = ["slow", "medium", "fast", "faster", "max"];
+let mazeTick = 0;
+function mazeLoop() {
+  if (!running) return;
+  const sp = SPEEDS[document.getElementById("maze-speed").value];
+  if (sp === 1) { if (++mazeTick % 6 === 0) mazeStep(); } else for (let i = 0; i < sp; i++) mazeStep();
+  drawMaze(); drawChart(mazeChart, mazeLens, null);
+  requestAnimationFrame(mazeLoop);
+}
+document.getElementById("maze-run").onclick = e => { running = !running; e.target.textContent = running ? "Pause" : "Run"; if (running) mazeLoop(); };
+document.getElementById("maze-reset").onclick = mazeReset;
+const syncLabels = () => {
+  document.getElementById("maze-speed-v").textContent = SPEED_NAMES[document.getElementById("maze-speed").value];
+  document.getElementById("maze-eps-v").textContent = eps().toFixed(2);
+};
+document.getElementById("maze-speed").oninput = syncLabels; document.getElementById("maze-eps").oninput = syncLabels;
+syncLabels(); mazeReset();
+
+// ---------- 2. CartPole with REINFORCE ----------
+const cpCanvas = document.getElementById("cp-canvas"), cpChart = document.getElementById("cp-chart");
+const cpInit = () => [0, 0, 0, 0].map(() => Math.random() * 0.1 - 0.05);
+function cpStep(s, right) { // classic Barto, Sutton and Anderson dynamics, Euler step of 0.02 s
+  let [x, xd, t, td] = s;
+  const f = right ? 10 : -10, ct = Math.cos(t), st = Math.sin(t);
+  const tmp = (f + 0.05 * td * td * st) / 1.1;
+  const ta = (9.8 * st - ct * tmp) / (0.5 * (4 / 3 - 0.1 * ct * ct / 1.1));
+  const xa = tmp - 0.05 * ta * ct / 1.1;
+  x += 0.02 * xd; xd += 0.02 * xa; t += 0.02 * td; td += 0.02 * ta;
+  return [[x, xd, t, td], Math.abs(x) > 2.4 || Math.abs(t) > 0.2095];
+}
+const feat = s => [s[0] / 2.4, s[1] / 2, s[2] / 0.21, s[3] / 2, 1];
+const sig = z => 1 / (1 + Math.exp(-z));
+const pRight = s => sig(feat(s).reduce((a, v, j) => a + v * w[j], 0));
+let w, cpLens, cpEps, training = false, watch, watchT;
+
+function cpTrainEpisode() {
+  let s = cpInit(); const traj = [];
+  for (let i = 0; i < 500; i++) {
+    const f = feat(s), p = pRight(s), a = Math.random() < p ? 1 : 0;
+    traj.push([f, a, p]); let done; [s, done] = cpStep(s, a); if (done) break;
+  }
+  const T = traj.length, G = new Array(T); let g = 0;
+  for (let t = T - 1; t >= 0; t--) { g = 1 + 0.99 * g; G[t] = g; }
+  const m = G.reduce((a, b) => a + b) / T, sd = Math.sqrt(G.reduce((a, b) => a + (b - m) ** 2, 0) / T) + 1e-6;
+  for (let t = 0; t < T; t++) { const [f, a, p] = traj[t], adv = (G[t] - m) / sd; for (let j = 0; j < 5; j++) w[j] += 0.01 * adv * (a - p) * f[j]; }
+  cpLens.push(T); if (cpLens.length > 400) cpLens.shift(); cpEps++;
+}
+function cpReset() {
+  w = [0, 0, 0, 0, 0]; cpLens = []; cpEps = 0; watch = cpInit(); watchT = 0;
+  document.getElementById("cp-ep").textContent = 0; drawChart(cpChart, cpLens, 500);
+}
+function drawCart() {
+  const g = cpCanvas.getContext("2d"), W = cpCanvas.width, H = cpCanvas.height, scale = W / 5.6, cx = W / 2 + watch[0] * scale, ty = H - 50;
+  g.clearRect(0, 0, W, H);
+  g.strokeStyle = C.line; g.lineWidth = 3; g.beginPath(); g.moveTo(W / 2 - 2.4 * scale, ty + 18); g.lineTo(W / 2 + 2.4 * scale, ty + 18); g.stroke();
+  g.fillStyle = C.muted; [-2.4, 2.4].forEach(e => g.fillRect(W / 2 + e * scale - 2, ty + 6, 4, 24));
+  g.fillStyle = C.accent; g.fillRect(cx - 34, ty - 6, 68, 24);
+  const L = 1.0 * scale * 1.1, tx = cx + Math.sin(watch[2]) * L, tyy = ty - Math.cos(watch[2]) * L;
+  g.strokeStyle = C.agent; g.lineWidth = 8; g.lineCap = "round"; g.beginPath(); g.moveTo(cx, ty); g.lineTo(tx, tyy); g.stroke();
+  g.fillStyle = C.fg; g.beginPath(); g.arc(cx, ty, 5, 0, 7); g.fill();
+}
+function cpLoop() {
+  if (training) {
+    for (let i = 0; i < 3; i++) cpTrainEpisode();
+    document.getElementById("cp-ep").textContent = cpEps; drawChart(cpChart, cpLens, 500);
+  }
+  let done; [watch, done] = cpStep(watch, pRight(watch) > 0.5);
+  watchT++;
+  if (done || watchT >= 1000) { watch = cpInit(); watchT = 0; }
+  document.getElementById("cp-t").textContent = watchT;
+  drawCart();
+  requestAnimationFrame(cpLoop);
+}
+document.getElementById("cp-train").onclick = e => { training = !training; e.target.textContent = training ? "Pause training" : "Train"; };
+document.getElementById("cp-reset").onclick = cpReset;
+cpReset(); cpLoop();
+</script>
+</body>
+</html>

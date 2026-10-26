@@ -1,0 +1,114 @@
+{
+ "model": "Qwen/Qwen3-8B",
+ "evidence_chars": 0,
+ "items": [
+  {
+   "qid": "95de313fdfef9d01",
+   "workers": [
+    {
+     "prompt_equal": true,
+     "T": 45133,
+     "question_found": true,
+     "latent_max_abs_diff": 0.0,
+     "cache_keys_max_abs_diff": 0.0,
+     "snap_rel_diff": 0.0,
+     "support_rel_diff": 0.0,
+     "keep4_port_equal": true,
+     "keep4_overlap": 1.0,
+     "keep16_port_equal": true,
+     "keep16_overlap": 1.0
+    },
+    {
+     "prompt_equal": true,
+     "T": 47254,
+     "question_found": true,
+     "latent_max_abs_diff": 0.0,
+     "cache_keys_max_abs_diff": 0.0,
+     "snap_rel_diff": 0.0,
+     "support_rel_diff": 0.0,
+     "keep4_port_equal": true,
+     "keep4_overlap": 1.0,
+     "keep16_port_equal": true,
+     "keep16_overlap": 1.0
+    },
+    {
+     "prompt_equal": true,
+     "T": 47583,
+     "question_found": true,
+     "latent_max_abs_diff": 0.0,
+     "cache_keys_max_abs_diff": 0.0,
+     "snap_rel_diff": 0.0,
+     "support_rel_diff": 0.0,
+     "keep4_port_equal": true,
+     "keep4_overlap": 1.0,
+     "keep16_port_equal": true,
+     "keep16_overlap": 1.0
+    }
+   ],
+   "manager_prompt_equal": true,
+   "question_rows_equal": true,
+   "keeps4_equal": true,
+   "payload_max_abs_diff": 0.0,
+   "receiver_positions": 35047,
+   "receiver_logits": {
+    "kl": -5.7029211575354566e-08,
+    "argmax_agree": true,
+    "max_abs": 1.11328125
+   }
+  },
+  {
+   "qid": "c58ac65553f24640",
+   "workers": [
+    {
+     "prompt_equal": false,
+     "T": 50112,
+     "question_found": true,
+     "latent_max_abs_diff": 0.0,
+     "cache_keys_max_abs_diff": 0.0,
+     "snap_rel_diff": 0.0,
+     "support_rel_diff": 0.0,
+     "keep4_port_equal": true,
+     "keep4_overlap": 1.0,
+     "keep16_port_equal": true,
+     "keep16_overlap": 1.0
+    },
+    {
+     "prompt_equal": true,
+     "T": 50133,
+     "question_found": true,
+     "latent_max_abs_diff": 0.0,
+     "cache_keys_max_abs_diff": 0.0,
+     "snap_rel_diff": 0.0,
+     "support_rel_diff": 0.0,
+     "keep4_port_equal": true,
+     "keep4_overlap": 1.0,
+     "keep16_port_equal": true,
+     "keep16_overlap": 1.0
+    },
+    {
+     "prompt_equal": true,
+     "T": 50126,
+     "question_found": true,
+     "latent_max_abs_diff": 0.0,
+     "cache_keys_max_abs_diff": 0.0,
+     "snap_rel_diff": 0.0,
+     "support_rel_diff": 0.0,
+     "keep4_port_equal": true,
+     "keep4_overlap": 1.0,
+     "keep16_port_equal": true,
+     "keep16_overlap": 1.0
+    }
+   ],
+   "manager_prompt_equal": true,
+   "question_rows_equal": true,
+   "keeps4_equal": true,
+   "payload_max_abs_diff": 0.0,
+   "receiver_positions": 37649,
+   "receiver_logits": {
+    "kl": -2.8961384401782198e-08,
+    "argmax_agree": true,
+    "max_abs": 1.3447265625
+   }
+  }
+ ]
+}

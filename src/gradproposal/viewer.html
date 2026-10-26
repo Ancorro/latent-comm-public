@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent I/O</title>
+<link rel="icon" href="data:,">
+<style>
+  :root {
+    --bg: #f6f6f4; --card: #ffffff; --fg: #1d1d1b; --muted: #6b6b66;
+    --line: #e2e1dc; --code: #f1f0ec; --accent: #3b5bdb; --agent: #edf1ff;
+    --good: #2b8a3e; --good-bg: #e6f4ea; --bad: #c92a2a; --bad-bg: #fdecec;
+    --mid: #a35f00; --mid-bg: #fff3dc;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141413; --card: #1e1e1c; --fg: #ecebe6; --muted: #9a9993;
+      --line: #2f2f2c; --code: #262624; --accent: #8ca2ff; --agent: #232a44;
+      --good: #69db7c; --good-bg: #1d3323; --bad: #ff8787; --bad-bg: #3a1f1f;
+      --mid: #ffc078; --mid-bg: #3a2c16;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141413; --card: #1e1e1c; --fg: #ecebe6; --muted: #9a9993;
+    --line: #2f2f2c; --code: #262624; --accent: #8ca2ff; --agent: #232a44;
+    --good: #69db7c; --good-bg: #1d3323; --bad: #ff8787; --bad-bg: #3a1f1f;
+    --mid: #ffc078; --mid-bg: #3a2c16;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+    font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { position: sticky; top: 0; z-index: 1; background: var(--bg);
+    border-bottom: 1px solid var(--line); padding: 12px 16px; }
+  h1 { font-size: 17px; margin: 0 0 8px; display: flex; align-items: center; gap: 8px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+  .dot.live { background: var(--good); }
+  .navlink { margin-left: auto; font-size: 14px; font-weight: 500; color: var(--accent); text-decoration: none; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; }
+  select { font: inherit; font-size: 14px; padding: 4px 6px; border-radius: 6px;
+    border: 1px solid var(--line); background: var(--card); color: var(--fg); max-width: 100%; }
+  #summary { margin-top: 8px; font-size: 13px; color: var(--muted); }
+  main { padding: 12px 16px 40px; max-width: 900px; margin: 0 auto; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    margin-bottom: 12px; overflow: hidden; }
+  .card > summary { list-style: none; cursor: pointer; padding: 12px; }
+  .card > summary::-webkit-details-marker { display: none; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center;
+    font-size: 13px; color: var(--muted); }
+  .meta b { color: var(--fg); }
+  .pill { font-weight: 600; font-size: 12px; padding: 2px 8px; border-radius: 99px; }
+  .r1 { color: var(--good); background: var(--good-bg); }
+  .r0 { color: var(--bad); background: var(--bad-bg); }
+  .rm { color: var(--mid); background: var(--mid-bg); }
+  .run { color: var(--accent); }
+  .chat { padding: 0 12px 12px; display: flex; flex-direction: column; gap: 8px; }
+  .msg { border-radius: 8px; padding: 8px 10px; background: var(--code); }
+  .msg.agent { background: var(--agent); margin-left: 24px; }
+  .msg.env { margin-right: 24px; }
+  .who { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em;
+    color: var(--muted); margin-bottom: 4px; display: flex; gap: 8px; align-items: center; }
+  pre { margin: 0; white-space: pre-wrap; word-break: break-word;
+    font: 13px/1.45 ui-monospace, Consolas, monospace; }
+  details.raw summary { cursor: pointer; font-size: 12px; color: var(--accent); margin: 6px 0; }
+  details.raw pre { margin-top: 6px; padding: 8px; border-radius: 6px; background: var(--bg); }
+  .err { color: var(--bad); }
+  .empty { color: var(--muted); text-align: center; padding: 40px 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1><span class="dot" id="dot"></span>Agent I/O <a class="navlink" href="lesson">RL lesson →</a> <a class="navlink" href="visuals">RL visuals →</a></h1>
+  <div class="filters">
+    <select id="f-run"></select>
+    <select id="f-agent"></select>
+    <select id="f-env"></select>
+  </div>
+  <div id="summary"></div>
+</header>
+<main id="list"><div class="empty">No episodes yet. Run <code>python -m gradproposal.run</code>.</div></main>
+<script>
+const filters = { run: "", agent: "", env: "" };
+let episodes = [];
+const shownVersion = {};  // episode id -> version currently on the page
+const opened = new Set(); // episode ids the viewer expanded
+
+function el(tag, attrs = {}, ...kids) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) k === "class" ? n.className = v : n.setAttribute(k, v);
+  for (const k of kids) n.append(k);
+  return n;
+}
+
+function pill(label, value, best = 1) {
+  const cls = value >= best ? "r1" : value <= 0 ? "r0" : "rm";
+  return el("span", { class: "pill " + cls }, `${label} ${value.toFixed(2)}`);
+}
+
+const version = e => `${e.messages.length}:${e.status}`;
+
+function card(e) {
+  const c = el("details", { class: "card", id: "e-" + e.id });
+  if (opened.has(e.id) || e.status === "running") c.open = true;
+  c.addEventListener("toggle", () => c.open ? opened.add(e.id) : opened.delete(e.id));
+  const status = e.status === "running" ? el("span", { class: "pill run" }, "running…")
+    : el("span", {}, e.status);
+  c.append(el("summary", {}, el("div", { class: "meta" },
+    el("b", {}, e.env), el("span", {}, `seed ${e.seed}`), el("span", {}, e.agent),
+    pill("return", e.return), el("span", {}, `${e.turns} turn${e.turns === 1 ? "" : "s"}`),
+    status, el("span", {}, e.time.replace("T", " ").replace("+00:00", " UTC")))));
+
+  const chat = el("div", { class: "chat" });
+  const sys = el("details", { class: "raw" }, el("summary", {}, "system prompt"), el("pre", {}, e.system));
+  chat.append(sys);
+  for (const m of e.messages) {
+    const who = el("div", { class: "who" }, m.role === "agent" ? "agent" : "environment");
+    if (m.reward !== undefined) who.append(pill("reward", m.reward));
+    if (m.latency_s !== undefined) who.append(el("span", {}, `${m.latency_s}s`));
+    if (m.info?.completion_tokens) who.append(el("span", {}, `${m.info.completion_tokens} tok`));
+    if (m.info?.finish_reason === "length") who.append(el("span", { class: "pill r0" }, "cut off"));
+    const box = el("div", { class: "msg " + m.role }, who);
+    // Reasoning models: fold the <think> block, show the answer.
+    const think = /^<think>([\s\S]*?)<\/think>\s*/.exec(m.content);
+    if (think) box.append(el("details", { class: "raw" },
+      el("summary", {}, `thinking (${think[1].trim().split(/\s+/).length} words)`), el("pre", {}, think[1].trim())));
+    box.append(el("pre", {}, think ? m.content.slice(think[0].length) : m.content));
+    if (m.prompt !== undefined) box.append(el("details", { class: "raw" },
+      el("summary", {}, "exact input this turn"), el("pre", {}, m.prompt)));
+    chat.append(box);
+  }
+  if (e.error) chat.append(el("div", { class: "msg env" }, el("pre", { class: "err" }, e.error)));
+  c.append(chat);
+  return c;
+}
+
+function options(select, key, values, label) {
+  const cur = filters[key];
+  if (select.dataset.values === values.join("\n")) return; // don't close an open picker
+  select.dataset.values = values.join("\n");
+  select.replaceChildren(el("option", { value: "" }, `all ${label}`),
+    ...values.map(v => { const o = el("option", { value: v }, v); if (v === cur) o.selected = true; return o; }));
+}
+
+function visible() {
+  return episodes.filter(e => Object.entries(filters).every(([k, v]) => !v || e[k] === v));
+}
+
+function render(full) {
+  const uniq = k => [...new Set(episodes.map(e => e[k]))];
+  options(document.getElementById("f-run"), "run", uniq("run").reverse(), "runs");
+  options(document.getElementById("f-agent"), "agent", uniq("agent"), "agents");
+  options(document.getElementById("f-env"), "env", uniq("env"), "envs");
+
+  const shown = visible();
+  const byAgent = {};
+  for (const e of shown) (byAgent[e.agent] ??= []).push(e.return);
+  document.getElementById("summary").textContent = `${shown.length} episodes` +
+    Object.entries(byAgent).map(([a, r]) => ` · ${a} mean return ${(r.reduce((x, y) => x + y, 0) / r.length).toFixed(2)}`).join("");
+
+  const list = document.getElementById("list");
+  if (full) { list.replaceChildren(); for (const k in shownVersion) delete shownVersion[k]; }
+  if (!shown.length) { list.replaceChildren(el("div", { class: "empty" }, "No episodes match.")); return; }
+  list.querySelector(".empty")?.remove();
+  // Newest episode on top; only new or changed episodes are redrawn.
+  for (const e of shown) {
+    if (shownVersion[e.id] === version(e)) continue;
+    const old = document.getElementById("e-" + e.id);
+    old ? old.replaceWith(card(e)) : list.prepend(card(e));
+    shownVersion[e.id] = version(e);
+  }
+}
+
+async function poll() {
+  const dot = document.getElementById("dot");
+  try {
+    const r = await fetch("api/episodes", { cache: "no-store" });
+    episodes = await r.json();
+    render(false);
+    dot.className = "dot live";
+  } catch { dot.className = "dot"; }
+}
+
+for (const key of Object.keys(filters)) {
+  document.getElementById("f-" + key).addEventListener("change", ev => {
+    filters[key] = ev.target.value; render(true);
+  });
+}
+poll(); setInterval(poll, 3000);
+</script>
+</body>
+</html>

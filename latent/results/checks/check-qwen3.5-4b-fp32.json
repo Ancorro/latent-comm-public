@@ -1,0 +1,111 @@
+{
+ "model": "Qwen/Qwen3.5-4B",
+ "m": 40,
+ "dtype": "float32",
+ "tie_word_embeddings": true,
+ "w_a_minus_I_fro": 0.00019492134742904454,
+ "target_norm": 0.655774712562561,
+ "hybrid": true,
+ "gsm8k": {
+  "theorem_3_3_exact": [
+   {
+    "positions_compared": 184,
+    "max_abs": 0.0027494430541992188,
+    "ref_max_abs": 29.021316528320312,
+    "kl_mean": -1.3272802856789667e-09,
+    "kl_max": 1.8757543784886366e-07,
+    "argmax_agree_frac": 1.0
+   },
+   {
+    "positions_compared": 177,
+    "max_abs": 0.002101898193359375,
+    "ref_max_abs": 29.652555465698242,
+    "kl_mean": 4.29518504097004e-10,
+    "kl_max": 1.7778972960513784e-07,
+    "argmax_agree_frac": 1.0
+   }
+  ],
+  "theorem_3_3_exact_m0": {
+   "positions_compared": 184,
+   "max_abs": 0.001209259033203125,
+   "ref_max_abs": 30.083484649658203,
+   "kl_mean": 3.372693457848186e-09,
+   "kl_max": 2.2243699504542747e-07,
+   "argmax_agree_frac": 1.0
+  },
+  "theorem_3_3": [
+   {
+    "max_abs": 0.018525362014770508,
+    "ref_max_abs": 19.384552001953125,
+    "argmax_agree": true,
+    "kl": 3.8110192690510303e-07,
+    "positions": 861
+   },
+   {
+    "max_abs": 0.0013905763626098633,
+    "ref_max_abs": 19.04859733581543,
+    "argmax_agree": true,
+    "kl": -2.048921032837825e-09,
+    "positions": 833
+   }
+  ],
+  "theorem_3_3_m0": {
+   "max_abs": 6.389617919921875e-05,
+   "ref_max_abs": 20.157583236694336,
+   "argmax_agree": true,
+   "kl": -1.0857789334295376e-08,
+   "positions": 741
+  }
+ },
+ "arc_challenge": {
+  "theorem_3_3_exact": [
+   {
+    "positions_compared": 216,
+    "max_abs": 0.00267791748046875,
+    "ref_max_abs": 29.376001358032227,
+    "kl_mean": -4.995500901827654e-09,
+    "kl_max": 2.3929510462039616e-07,
+    "argmax_agree_frac": 1.0
+   },
+   {
+    "positions_compared": 223,
+    "max_abs": 0.010708808898925781,
+    "ref_max_abs": 30.799209594726562,
+    "kl_mean": 5.8408566872003576e-09,
+    "kl_max": 4.6456989366561174e-07,
+    "argmax_agree_frac": 1.0
+   }
+  ],
+  "theorem_3_3_exact_m0": {
+   "positions_compared": 216,
+   "max_abs": 0.0010538101196289062,
+   "ref_max_abs": 30.900571823120117,
+   "kl_mean": -8.570954612707737e-09,
+   "kl_max": 2.430258518870687e-07,
+   "argmax_agree_frac": 1.0
+  },
+  "theorem_3_3": [
+   {
+    "max_abs": 0.0004782676696777344,
+    "ref_max_abs": 21.01349639892578,
+    "argmax_agree": true,
+    "kl": -2.9921821464995446e-08,
+    "positions": 899
+   },
+   {
+    "max_abs": 0.0021535158157348633,
+    "ref_max_abs": 19.13909912109375,
+    "argmax_agree": true,
+    "kl": 2.3963264084159164e-07,
+    "positions": 927
+   }
+  ],
+  "theorem_3_3_m0": {
+   "max_abs": 7.700920104980469e-05,
+   "ref_max_abs": 22.230947494506836,
+   "argmax_agree": true,
+   "kl": -4.363992189837518e-08,
+   "positions": 779
+  }
+ }
+}
